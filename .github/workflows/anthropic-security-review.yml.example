@@ -1,0 +1,31 @@
+name: Anthropic security review
+on:
+  pull_request:
+    types: [labeled, synchronize]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'security-review')
+    runs-on: ubuntu-latest
+    environment: security-review
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Review trusted changes
+        id: review
+        uses: anthropics/claude-code-security-review@0c6a49f1fa56a1d472575da86a94dbc1edb78eda
+        with:
+          claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          comment-pr: false
+          run-every-commit: true
+      - name: Require valid review output and no findings
+        shell: bash
+        run: |
+          result=$(find "$(dirname "$RUNNER_WORKSPACE")/_actions/anthropics/claude-code-security-review" -path '*/claudecode/claudecode-results.json' -type f -print -quit)
+          test -n "$result"
+          jq -e '(.error == null) and (.findings | type == "array") and (.findings | length == 0)' "$result" >/dev/null

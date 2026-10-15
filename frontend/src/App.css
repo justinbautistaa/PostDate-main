@@ -1,0 +1,16 @@
+/* App.css — shared page-level helpers. Component styling lives with its component. */
+
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--pd-pink);
+}
+
+.page-container > main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--pd-max);
+  margin: 0 auto;
+  padding: clamp(16px, 2.5vw, 40px) var(--pd-gutter) clamp(32px, 5vw, 72px);
+}

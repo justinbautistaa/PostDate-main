@@ -1,0 +1,15 @@
+.my-reports-privacy { background:#f3ded2; border:1px solid #e5c9bb; padding:18px 22px; border-radius:14px; color:#795b55; font:13px/1.8 Arial,sans-serif; margin-bottom:24px; }
+.my-report-list { list-style:none; padding:0; display:grid; gap:18px; }
+.my-report-list>li,.my-reports-empty { padding:26px; border:1px solid #e2cec1; border-radius:16px; background:#fffaf5; }
+.my-report-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.my-report-heading h2,.my-reports-empty h2 { margin:0; color:#71354a; font:26px/1.3 var(--pd-display); }
+.my-report-status { font:600 12px Arial,sans-serif; padding:8px 14px; border-radius:22px; background:#f3e3e4; color:#873a51; }
+.my-report-status.status-resolved { background:#e5eddf; color:#496440; }
+.my-report-status.status-dismissed { background:#ede7e1; color:#70615b; }
+.my-report-meta,.my-report-list small { color:#806b62; font:12px/1.7 Arial,sans-serif; }
+.my-report-description { white-space:pre-wrap; overflow-wrap:anywhere; font:14px/1.8 Arial,sans-serif; color:#594640; }
+.my-report-outcome { border-top:1px solid #eadbd2; padding-top:16px; color:#71354a; font:13px/1.7 Arial,sans-serif; }
+.my-report-reference { display:block; overflow-wrap:anywhere; margin-top:10px; }
+.my-reports-empty { text-align:center; padding:40px 24px; color:#806b62; }
+.my-reports-empty>span { display:block; font-size:44px; color:#873a51; margin-bottom:14px; }
+.my-reports-error { padding:16px; border:1px solid #c99aa7; border-radius:12px; color:#873a51; }

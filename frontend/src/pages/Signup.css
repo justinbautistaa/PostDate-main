@@ -1,0 +1,96 @@
+.signup.public-page { min-height:100vh; display:flex; flex-direction:column; background:#fcf7f0; font:14px/1.6 Arial,Helvetica,sans-serif; color:#342a28; }
+.signup .signup-main { width:min(100%,1180px); margin:0 auto; padding:44px 32px 56px; flex:1; }
+.signup-intro { margin-bottom:30px; }
+.signup-intro h1 { font:400 clamp(32px,3.6vw,46px)/1.2 var(--pd-display); color:#683747; letter-spacing:-.03em; margin:12px 0; }
+.signup-intro>p:last-child { color:#78655d; margin:0; font-size:15px; }
+.signup .signup-stage { width:100%; }
+.signup .signup-stepper { padding:0 0 28px; }
+.signup .stepper-track { gap:20px; padding:20px 0; border-block:1px solid #e5d7ce; }
+.signup .stepper-track .stepper-item { flex:1; gap:10px; }
+.signup .stepper-circle { width:32px; height:32px; font:600 14px Arial,sans-serif; }
+.signup .stepper-label { margin:0; font:500 13px/1.5 Arial,sans-serif; text-transform:none; white-space:normal; }
+.signup .stepper-item-upcoming .stepper-circle { background:#eee4dc; color:#897770; }
+.signup .stepper-item-upcoming .stepper-label { color:#897770; }
+.signup .stepper-arrow { display:none; }
+.signup .signup-row { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:64px; align-items:start; margin:0; }
+.signup .signup-card-slot { min-width:0; margin:0; }
+.signup .stamp-wrapper { width:100%; height:auto; font-family:Arial,Helvetica,sans-serif; }
+.signup .stamp-card { height:auto; background:#fffdf9; border:1px solid #e4d3c7; border-radius:18px; box-shadow:0 6px 24px #704c3d05; }
+.signup .stamp-perf,.signup .stamp-border { display:none; }
+.signup .stamp-inner { position:static; width:100%; height:auto; }
+.signup .stamp-header { height:auto; padding:26px 28px 8px; background:transparent; }
+.signup .stamp-header h1 { font:400 28px/1.25 var(--pd-display); color:#683747; text-transform:none; white-space:normal; }
+.signup .stamp-body { padding:18px 28px 8px; gap:18px; min-height:0; }
+.signup .wru-group,.signup .wru-group-first { gap:7px; }
+.signup .wru-label,.signup .photos-field-label,.signup .taste-field-label { font:600 13px/1.5 Arial,sans-serif; text-transform:none; color:#594640; }
+.signup .wru-name-row { gap:8px; }
+.signup .wru-pair { gap:16px; }
+.signup .stamp-wrapper input,.signup .stamp-wrapper select,.signup .stamp-wrapper textarea,.signup .stamp-wrapper .wru-name-row input { width:100%; min-width:0; height:46px; border:1px solid #e2d3c9; border-radius:8px; padding:10px 12px; font:400 14px/1.5 Arial,sans-serif; text-transform:none; background:#faf4ed; color:#342a28; }
+.signup .stamp-wrapper input::placeholder,.signup .stamp-wrapper textarea::placeholder { color:#99877e; opacity:1; }
+.signup .stamp-wrapper select.wru-select-empty { color:#99877e; }
+.signup .stamp-wrapper select { padding-right:28px; }
+.signup .wru-select-wrap::after { right:12px; top:20px; border-left-width:5px; border-right-width:5px; border-top-width:6px; }
+.signup .stamp-wrapper textarea { height:90px; resize:vertical; }
+.signup .stamp-wrapper :is(input,select,textarea):focus-visible { outline:2px solid #b44c65; outline-offset:2px; }
+.signup .stamp-wrapper .wru-invalid { border-color:#b33951; }
+.signup .stamp-meta-row { position:static; height:auto; min-height:20px; gap:12px; align-items:start; margin-top:2px; }
+.signup .stamp-error { font:13px/1.5 Arial,sans-serif; }
+.signup .stamp-step { font:12px/1.6 Arial,sans-serif; white-space:nowrap; color:#99877e; }
+.signup .stamp-footer { background:transparent; height:auto; padding:12px 28px 28px; }
+.signup .stamp-footer { gap:12px; align-items:center; }
+.signup .stamp-back-btn { border:1px solid #dcc6b8; background:transparent; color:#873a51; padding:12px 16px; border-radius:8px; cursor:pointer; font:14px Arial,sans-serif; }
+.signup .stamp-continue-btn { width:100%; min-height:46px; height:auto; padding:12px 18px; justify-content:center; gap:16px; border-radius:9px; background:#8b3952; color:#fff9f1; font:600 14px/1.5 Arial,sans-serif; text-transform:none; }
+.signup .stamp-continue-btn:hover { transform:none; background:#722d44; }
+.signup .stamp-continue-btn:disabled { opacity:.6; cursor:wait; }
+.signup .stamp-continue-btn:focus-visible { outline:2px solid #8b3952; }
+.signup .stamp-arrow { width:24px; height:1px; background:currentColor; }
+.signup .stamp-arrow::after { width:6px; height:6px; border-width:1px 1px 0 0; border-color:currentColor; }
+.signup-login { text-align:center; color:#89736a; font-size:13px; margin:24px 0 0; }
+.signup-login a { color:#8b3952; text-underline-offset:3px; }
+.signup .signup-error { padding:14px; border:1px solid #dbb9b9; border-radius:8px; color:#8b3952; background:#fff2ee; font:13px/1.6 Arial,sans-serif; }
+.signup-aside { min-width:0; padding-top:16px; }
+.signup-aside h2 { font:400 clamp(28px,3vw,38px)/1.2 var(--pd-display); color:#683747; margin:16px 0; max-width:390px; }
+.signup-aside-copy { font:14px/1.8 Arial,sans-serif; color:#806a61; max-width:370px; }
+.signup-profile-preview { margin-top:28px; padding:28px; background:#f2e1d5; border:1px solid #ead2c2; border-radius:16px 64px 16px 16px; }
+.signup-preview-label { font:9px/1.6 var(--pd-mono); letter-spacing:1.2px; color:#966577; }
+.signup-preview-avatar { display:grid; place-items:center; margin:26px 0 18px; width:72px; height:72px; border-radius:50%; background:#e6c0bb; color:#8b3952; font:36px var(--pd-display); }
+.signup-profile-preview h3 { font:400 26px/1.3 var(--pd-display); color:#683747; margin:12px 0; overflow-wrap:anywhere; }
+.signup-profile-preview p { font:14px/1.8 Arial,sans-serif; color:#806a61; overflow-wrap:anywhere; white-space:pre-wrap; }
+.signup-preview-note { display:block; border-top:1px solid #dbbeb0; padding-top:18px; margin-top:22px; font-size:11px; color:#8e6d61; }
+.signup-privacy { display:flex; gap:12px; margin:22px 0 0; color:#806a61; }
+.signup-privacy>span { font-size:24px; color:#8b3952; }
+.signup-privacy p { margin:0; font-size:12px; line-height:1.8; }
+.signup .photos-field-group,.signup .taste-field-group { gap:14px; }
+.signup .photos-dropzone { min-height:240px; border:2px dashed #d9beb0; border-radius:12px; background:#faf4ed; padding:20px; }
+.signup .photos-choose-label { font:500 14px Arial,sans-serif; text-transform:none; letter-spacing:0; color:#806a61; }
+.signup .stamp-wrapper .photos-hidden-input { position:absolute; width:1px; height:1px; padding:0; border:0; }
+.signup .photos-grid { gap:12px; }
+.signup .photos-thumb,.signup .photos-add-more { width:96px; height:112px; border-radius:8px; }
+.signup .photos-thumb-remove { width:24px; height:24px; font-size:18px; top:5px; right:5px; }
+.signup .photos-add-more { font:12px Arial,sans-serif; text-transform:none; }
+.signup .taste-grid { overflow:visible; gap:10px; padding:0; }
+.signup .taste-chip { font:500 13px/1.5 Arial,sans-serif; text-transform:none; letter-spacing:0; padding:10px 14px; border:1px solid #e0cec1; border-radius:24px; background:#faf4ed; }
+.signup .taste-chip-active { background:#8b3952; border-color:#8b3952; color:white; }
+.signup .taste-chip-active:hover { background:#722d44; }
+.signup .taste-count { font:12px/1.6 Arial,sans-serif; }
+.signup .sitefooter { background:transparent; border-top:1px solid #e5d7ce; color:#89736a; font:12px/1.6 Arial,sans-serif; padding:22px; }
+@media(max-width:900px) { .signup .signup-row { gap:32px; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); } }
+@media(max-width:720px) {
+ .signup .signup-main { padding:30px 20px 40px; }
+ .signup .signup-row { grid-template-columns:minmax(0,1fr); gap:28px; }
+ .signup .stepper-track { gap:12px; }
+ .signup .stepper-item { flex-direction:column; align-items:flex-start; gap:6px; }
+ .signup .stepper-label { font-size:12px; }
+ .signup .stamp-header { padding:24px 20px 8px; }
+ .signup .stamp-body { padding:16px 20px 8px; }
+ .signup .stamp-footer { padding:12px 20px 24px; }
+ .signup .stamp-wrapper input,.signup .stamp-wrapper select,.signup .stamp-wrapper textarea,.signup .stamp-wrapper .wru-name-row input { font-size:16px; }
+ .signup .wru-name-row { grid-template-columns:minmax(0,1fr); }
+ .signup .wru-pair { grid-template-columns:minmax(0,1fr); gap:18px; }
+ .signup-aside { padding-top:8px; }
+ .signup-profile-preview { margin-top:20px; }
+}
+.signup-consent { display:flex; align-items:flex-start; gap:10px; font:12px/1.7 Arial,sans-serif; color:#795b55; margin-top:16px; }
+.signup-consent input { flex-shrink:0; margin-top:4px; accent-color:#873a51; }
+.signup-consent a { color:#873a51; text-underline-offset:3px; }
+.member-settings input[type=checkbox] { width:auto; display:inline-block; margin:0 8px 0 0; }

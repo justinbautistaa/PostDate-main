@@ -1,0 +1,26 @@
+import React from "react";
+import { expect, it, vi } from "vitest";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import MessageNotifications from "../components/MessageNotifications";
+import api from "../api";
+vi.mock("../api", () => ({ API_ORIGIN: "", default: { get: vi.fn() } }));
+it("shows incoming messages, opens the conversation and clears the badge after reading", async () => {
+  let notify;
+  const close = vi.fn();
+  vi.stubGlobal("EventSource", class { addEventListener(name, callback) { notify = callback; } close = close; });
+  api.get.mockResolvedValue({ data: { total: 0, conversations: [] } });
+  const { unmount } = render(<MemoryRouter><MessageNotifications /></MemoryRouter>);
+  await act(async () => {});
+  api.get.mockResolvedValue({ data: { total: 1, conversations: [{ id: "match-1", name: "Alex", count: 1, latestId: "msg-1" }] } });
+  await act(async () => { await notify(); });
+  expect(await screen.findByRole("button", { name: "Message notifications, 1 unread" })).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Alex sent you a message/ }).getAttribute("href")).toBe("/messages?match=match-1");
+  fireEvent.click(screen.getByRole("button", { name: /Message notifications/ }));
+  expect(screen.getByRole("region", { name: "Unread messages" })).toBeTruthy();
+  api.get.mockResolvedValue({ data: { total: 0, conversations: [] } });
+  await act(async () => { window.dispatchEvent(new Event("postdate:messages-read")); });
+  expect(await screen.findByText("You’re all caught up.")).toBeTruthy();
+  unmount(); expect(close).toHaveBeenCalledOnce();
+  vi.unstubAllGlobals();
+});

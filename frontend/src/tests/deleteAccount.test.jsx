@@ -1,0 +1,30 @@
+import React from "react";
+import { beforeEach, expect, it, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import DeleteAccount from "../components/profile/DeleteAccount";
+import { setSession } from "../auth";
+import api from "../api";
+vi.mock("../api", () => ({ default: { post: vi.fn() } }));
+beforeEach(() => { vi.resetAllMocks(); setSession({userId:"me",role:"user"}); });
+it("requires an explicit confirmation and password before deletion",async()=>{
+  api.post.mockResolvedValue({data:{}});
+  render(<MemoryRouter><DeleteAccount /></MemoryRouter>);
+  fireEvent.click(screen.getByRole("button",{name:"Delete my account"}));
+  const submit=screen.getByRole("button",{name:"Permanently delete account"});
+  expect(submit.disabled).toBe(true);
+  fireEvent.change(screen.getByLabelText("Current password"),{target:{value:"PrivatePassword123"}});
+  fireEvent.change(screen.getByLabelText("Type DELETE to confirm"),{target:{value:"DELETE"}});
+  fireEvent.click(submit);
+  await screen.findByText("Your account is closed.");
+  expect(api.post).toHaveBeenCalledWith("/privacy/delete-account",{password:"PrivatePassword123",code:"",confirmation:"DELETE"});
+});
+it("does not claim success after a rejected deletion",async()=>{
+  api.post.mockRejectedValue({response:{data:{message:"Your current password is incorrect."}}});
+  render(<MemoryRouter><DeleteAccount /></MemoryRouter>);
+  fireEvent.click(screen.getByRole("button",{name:"Delete my account"}));
+  fireEvent.change(screen.getByLabelText("Current password"),{target:{value:"wrong"}});
+  fireEvent.change(screen.getByLabelText("Type DELETE to confirm"),{target:{value:"DELETE"}});
+  fireEvent.click(screen.getByRole("button",{name:"Permanently delete account"}));
+  await screen.findByRole("alert");expect(screen.queryByText("Your account is closed.")).toBeNull();
+});

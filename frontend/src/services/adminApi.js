@@ -1,0 +1,20 @@
+import api from "../api";
+
+const get = async (path, params) => (await api.get(`/admin/${path}`, { params })).data;
+const post = async (path, body) => (await api.post(`/admin/${path}`, body)).data;
+const patch = async (path, body) => (await api.patch(`/admin/${path}`, body)).data;
+const idPath = (id) => encodeURIComponent(id);
+export const getAdminOverview = () => get("overview");
+export const getAdminStatistics = (days) => get("statistics", { days });
+export const getAdminUsers = (params) => get("users", params);
+export const getAdminReports = (params) => get("reports", params);
+export const getAdminRatings = (params) => get("ratings", params);
+export const getAdminAppeals = (params) => get("appeals", params);
+export const getAdminActivity = (params) => get("activity", params);
+export const suspendUser = (id, reason) => post(`users/${idPath(id)}/suspend`, { reason });
+export const reinstateUser = (id) => post(`users/${idPath(id)}/reinstate`);
+export const setUserRole = (id, role) => patch(`users/${idPath(id)}/role`, { role });
+export const updateReport = (id, body) => patch(`reports/${idPath(id)}`, body);
+export const setRatingHidden = (id, body) => patch(`ratings/${idPath(id)}`, body);
+export const decideAppeal = (id, body) => post(`appeals/${idPath(id)}/decision`, body);
+export const errorMessage = (error) => error?.response?.data?.message || error?.message || "Request failed. Please try again.";

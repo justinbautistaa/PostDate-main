@@ -1,0 +1,52 @@
+import React from "react";
+import { beforeEach, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import api from "../api";
+import ProfileModal from "../components/discover/ProfileModal";
+import ReportForm from "../components/ReportForm";
+import Appeal from "../pages/Appeal";
+vi.mock("../api", () => ({ default: { post: vi.fn() } }));
+beforeEach(() => vi.resetAllMocks());
+it("reports the opened profile and shows confirmation only after the server accepts it", async () => {
+  api.post.mockResolvedValue({ data: { id: "report1" } });
+  render(<ProfileModal profile={{ id: "member1", name: "Alex", age: 25, gender: "Woman" }} />);
+  fireEvent.click(screen.getByRole("button", { name: "Report this profile" }));
+  fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "Fake profile" } });
+  fireEvent.change(screen.getByLabelText("Details (optional)"), { target: { value: "The photos appear stolen" } });
+  fireEvent.click(screen.getByRole("button", { name: "Submit report" }));
+  await screen.findByRole("heading", { name: "Report submitted" });
+  expect(api.post).toHaveBeenCalledWith("/reports", { targetType: "user", targetId: "member1", reason: "Fake profile", description: "The photos appear stolen" });
+});
+it("message reports use the specific message ID and retain drafts on failure", async () => {
+  api.post.mockRejectedValue({ response: { data: { message: "Please try again later" } } });
+  render(<ReportForm targetType="message" targetId="message1" />);
+  fireEvent.change(screen.getByLabelText("Reason"), { target: { value: "Harassment" } });
+  fireEvent.change(screen.getByLabelText("Details (optional)"), { target: { value: "Repeated unwanted messages" } });
+  fireEvent.click(screen.getByRole("button", { name: "Submit report" }));
+  await screen.findByRole("alert");
+  expect(api.post).toHaveBeenCalledWith("/reports", expect.objectContaining({ targetType: "message", targetId: "message1" }));
+  expect(screen.getByLabelText("Details (optional)").value).toBe("Repeated unwanted messages");
+  expect(screen.queryByText("Report submitted")).toBeNull();
+});
+it("suspended users can submit an appeal without a session", async () => {
+  api.post.mockResolvedValue({ data: { id: "appeal1" } });
+  render(<MemoryRouter><Appeal /></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText("Registered email"), { target: { value: "member@example.test" } });
+  fireEvent.change(screen.getByLabelText("Account password"), { target: { value: "OriginalSecret123" } });
+  fireEvent.change(screen.getByLabelText("Your explanation"), { target: { value: "Please reconsider my suspension." } });
+  fireEvent.click(screen.getByRole("button", { name: "Submit appeal" }));
+  await screen.findByRole("heading", { name: "Appeal submitted" });
+  expect(api.post).toHaveBeenCalledWith("/appeals", { email: "member@example.test", password: "OriginalSecret123", message: "Please reconsider my suspension." });
+  expect(screen.queryByLabelText("Account password")).toBeNull();
+});
+it("duplicate appeal errors do not show a misleading success confirmation", async () => {
+  api.post.mockRejectedValue({ response: { data: { message: "You already have an appeal waiting for review" } } });
+  render(<MemoryRouter><Appeal /></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText("Registered email"), { target: { value: "member@example.test" } });
+  fireEvent.change(screen.getByLabelText("Account password"), { target: { value: "OriginalSecret123" } });
+  fireEvent.change(screen.getByLabelText("Your explanation"), { target: { value: "Please review my account." } });
+  fireEvent.click(screen.getByRole("button", { name: "Submit appeal" }));
+  await waitFor(() => expect(screen.getByRole("alert").textContent).toMatch(/already have an appeal/));
+  expect(screen.queryByText("Appeal submitted")).toBeNull();
+});

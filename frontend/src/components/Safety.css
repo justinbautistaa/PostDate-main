@@ -1,0 +1,15 @@
+.safety-backdrop { position:fixed; inset:0; z-index:100; background:#38252e80; display:grid; place-items:center; padding:20px; overflow-y:auto; }
+.safety-card { width:min(100%,480px); max-height:90dvh; overflow-y:auto; background:#fffaf5; border:1px solid #e2cec1; border-radius:18px; padding:28px; font:14px/1.8 Arial,sans-serif; color:#594640; }
+.safety-card h1,.safety-card h2 { font:400 28px/1.3 var(--pd-display); color:#71354a; margin:0 0 16px; }
+.safety-card label { display:flex; flex-direction:column; gap:7px; margin:16px 0; font-weight:600; }
+.safety-card input,.safety-card select,.safety-card textarea { width:100%; font:14px/1.7 Arial,sans-serif; padding:10px 12px; background:#fcf5ee; border:1px solid #dcc6b8; border-radius:8px; color:#49363b; }
+.safety-card button { background:#873a51; color:white; padding:12px 18px; border:0; border-radius:8px; cursor:pointer; font:600 13px Arial,sans-serif; }
+.safety-card button:disabled { opacity:.6; cursor:wait; }
+.safety-card [role=alert] { color:#a3324b; }
+.safety-card a { color:#873a51; }
+.safety-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:20px; }
+.appeal-page { background:#fcf7f0; min-height:100vh; }
+.appeal-page>main { margin:48px auto; max-height:none; }
+.report-link { border:0; background:transparent; color:#873a51; cursor:pointer; padding:8px; font:12px/1.5 Arial,sans-serif; text-decoration:underline; text-underline-offset:3px; }
+.chat-message .report-link { font-size:11px; }
+@media(max-width:520px) { .appeal-page>main { width:calc(100% - 32px); margin:28px 16px; } .safety-card { padding:22px; } }

@@ -1,0 +1,37 @@
+/* Shared by signup and the verification reminder at login. */
+.vmodal-backdrop { font-family: Arial, Helvetica, sans-serif; }
+.vmodal-backdrop .vmodal {
+  width: min(100%, 460px);
+  background: #fffaf4;
+  border: 1px solid #e6d5c8;
+  border-radius: 22px;
+  box-shadow: 0 24px 80px #38252e30;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.vmodal .vmodal-head { padding: 30px 28px 0; border: 0; }
+.vmodal .vmodal-title { font: 400 clamp(27px, 5vw, 34px)/1.25 var(--pd-display); color: #683747; text-transform: none; }
+.vmodal .vmodal-body { margin: 0; border-radius: 0; padding: 22px 28px 30px; background: transparent; }
+.vmodal .vmodal-heading { font: 600 15px/1.5 Arial, sans-serif; text-transform: none; color: #594640; }
+.vmodal .vmodal-sub { font: 14px/1.7 Arial, sans-serif; color: #806a61; margin: 10px 0 0; max-width: 100%; }
+.vmodal-email { display: block; color: #683747; overflow-wrap: anywhere; font-weight: 600; }
+.vmodal .vmodal-timer { margin: 18px 0 0; font: 500 22px/1.4 var(--pd-mono); color: #8b3952; }
+.vmodal .vmodal-form { gap: 12px; margin-top: 18px; }
+.vmodal .vmodal-input { height: 52px; width: 100%; border: 1px solid #decbbd; border-radius: 9px; background: #f7eee5; font: 500 24px/1.4 var(--pd-mono); letter-spacing: .3em; text-indent: .3em; color: #342a28; }
+.vmodal .vmodal-input::placeholder { color: #ad9387; }
+.vmodal .vmodal-input-bad { border-color: #b33951; }
+.vmodal .vmodal-error { font: 13px/1.6 Arial, sans-serif; min-height: 0; color: #a3324b; }
+.vmodal .vmodal-error:empty { display: none; }
+.vmodal .vmodal-submit { display: flex; justify-content: center; width: 100%; padding: 13px 18px; border: 0; border-radius: 9px; box-shadow: none; background: #8b3952; color: #fff9f1; font: 600 14px/1.5 Arial, sans-serif; text-transform: none; white-space: normal; margin-top: 6px; }
+.vmodal .vmodal-submit:hover { transform: none; background: #722d44; }
+.vmodal .vmodal-submit:focus-visible, .vmodal .vmodal-resend:focus-visible { outline: 2px solid #8b3952; outline-offset: 3px; }
+.vmodal .vmodal-resend { font: 13px/1.6 Arial, sans-serif; margin-top: 6px; text-underline-offset: 3px; color: #8b3952; }
+.vmodal-success { width: 100%; }
+.vmodal-success-mark { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 22px; border-radius: 50%; background: #e7eedf; color: #526d43; font: 30px Arial, sans-serif; }
+.vmodal-success h2 { margin: 0; color: #683747; font: 400 27px/1.3 var(--pd-display); }
+.vmodal-success p { font: 14px/1.8 Arial, sans-serif; color: #806a61; margin: 16px 0 24px; }
+@media(max-width:480px) {
+  .vmodal-backdrop .vmodal { border-radius: 16px; }
+  .vmodal .vmodal-head { padding: 26px 20px 0; }
+  .vmodal .vmodal-body { padding: 20px 20px 26px; }
+}

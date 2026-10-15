@@ -1,0 +1,30 @@
+.about-main { max-width:1180px; margin:auto; padding:48px 28px 64px; color:#795b55; font:15px/1.8 Arial,sans-serif; }
+.about-main h1,.about-main h2,.about-main h3 { font-family:var(--pd-display); color:#71354a; font-weight:400; line-height:1.2; }
+.about-main h2 { font-size:clamp(28px,3.5vw,38px); margin:12px 0 20px; }
+.about-main h3 { font-size:24px; margin:16px 0 12px; }
+.about-hero { position:relative; overflow:hidden; background:#f3ded2; border:1px solid #e5c9bb; border-radius:60px 18px 18px 18px; padding:52px; }
+.about-hero h1 { position:relative; z-index:1; font-size:clamp(36px,5vw,62px); margin:20px 0; }
+.about-hero>p:not(.public-eyebrow) { position:relative; z-index:1; max-width:550px; }
+.about-heart { position:absolute; right:48px; top:35px; color:#b94c68; font:220px/1.2 Arial,sans-serif; opacity:.25; transform:rotate(-12deg); }
+.about-purpose,.about-team { display:grid; grid-template-columns:1fr 1fr; gap:52px; margin:60px 0; }
+.about-purpose p:first-child { margin-top:0; }
+.about-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.about-values article { padding:26px; background:#fffaf5; border:1px solid #e2cec1; border-radius:16px; }
+.about-values article:nth-child(2) { background:#f3e3e4; }
+.about-values article:nth-child(3) { background:#f0efdf; }
+.about-values article>span { font-size:11px; letter-spacing:2px; color:#873a51; }
+.about-values p { margin-bottom:0; font-size:14px; }
+.about-team { border-top:1px solid #e2cec1; padding-top:40px; }
+.about-school { color:#873a51; font-weight:600; }
+.about-developers { display:grid; gap:12px; }
+.about-developer { display:flex; align-items:center; gap:16px; padding:18px; border:1px solid #e2cec1; border-radius:14px; background:#fffaf5; }
+.about-developer-initials { display:grid; place-items:center; width:46px; height:46px; flex-shrink:0; border-radius:50%; background:#f3e3e4; color:#873a51; font:600 13px Arial,sans-serif; }
+.about-developer h3 { font-size:20px; margin:0 0 5px; overflow-wrap:anywhere; }
+.about-developer p { font-size:12px; margin:0; }
+.about-team-work { background:#fffaf5; border:1px solid #e2cec1; border-radius:16px; padding:26px; }
+.about-team-work h3 { margin-top:0; }
+.about-team-work ul { list-style:none; margin:0; padding:0; }
+.about-team-work li { display:flex; flex-direction:column; gap:6px; padding:14px 0; border-top:1px solid #eadbd2; font-size:13px; }
+.about-team-work strong { color:#71354a; }
+.about-invite { text-align:center; padding:32px; border-radius:18px; background:#f3e3e4; }
+@media(max-width:700px) { .about-main { padding:28px 20px 40px; } .about-hero { padding:32px 24px; } .about-heart { right:-40px; } .about-purpose,.about-team { grid-template-columns:1fr; gap:16px; margin:36px 0; } .about-values { grid-template-columns:1fr; } }

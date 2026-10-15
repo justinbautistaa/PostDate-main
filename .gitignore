@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Environment variables (contains secrets - never commit)
+.env
+.env.*
+!.env.example
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# Uploaded photos (local disk storage, not real file storage — see
+# backend/utils/photoStorage.js. Never commit user-uploaded content.)
+backend/uploads/
+
+# Logs
+npm-debug.log*
+*.log
+
+# Editor/OS junk
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Archives can contain obsolete code or secrets
+*.zip
+coverage/
+
+.npm-cache/
+backend/.cache/
+*.encrypted
+backups/

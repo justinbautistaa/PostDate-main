@@ -1,0 +1,65 @@
+/* ============================================================================
+   theme.css — POSTDATE! design tokens
+   ----------------------------------------------------------------------------
+   SINGLE SOURCE OF TRUTH for colours, fonts and shared sizes.
+   Change a value here and it updates on every page at once.
+
+   Imported once from index.css, so every component can use these variables
+   without importing anything.
+   ========================================================================== */
+
+:root {
+  /* 🎨 PALETTE — straight from the Figma colour circles ---------------------
+     Swap any hex here to re-skin the whole site.                            */
+  --pd-maroon: #b33951; /* brand red — logo, nav pill, buttons, bands        */
+  --pd-pink: #e8b4b8; /* page background on all logged-in pages             */
+  --pd-tan: #ede0d4; /* input fields, tag chips, big panel background       */
+  --pd-salmon: #f4876a; /* avatars, photo placeholders, active nav link      */
+  --pd-ink: #2b2320; /* near-black — body text + admin background           */
+  --pd-cream: #faf3ee; /* cards, stamp paper, light panels                  */
+  --pd-white: #ffffff; /* hairline rules + text on maroon                   */
+  --pd-green: #50a658; /* the ✔ save button on the profile taste tab        */
+  --pd-grey: #d9d9d9; /* empty photo placeholders                           */
+  --pd-ink-alt: #1e1e1e; /* the discover page's dark footer band — a shade
+                             darker than --pd-ink, used nowhere else        */
+
+  /* ✍️ TYPE ---------------------------------------------------------------
+     Two families only. Fraunces = display, Space Mono = everything else.   */
+  --pd-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --pd-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* 📐 LAYOUT -------------------------------------------------------------
+     The Figma board is 1920 wide. --pd-max keeps content from stretching
+     past that on ultrawide monitors. Lower it for a tighter site.          */
+  --pd-max: 1920px;
+  --pd-gutter: clamp(16px, 3vw, 48px); /* left/right page padding           */
+  --pd-radius: 10px; /* default corner rounding                             */
+
+  /* 🎛️ ONE FIGMA PIXEL ----------------------------------------------------
+     The SIGN-UP and LOG-IN pages are fixed layouts, not responsive ones:
+     every size on them is written as `calc(<Figma px> * var(--u))`.
+     --u is how big one Figma pixel is on your screen, and it is the ONLY
+     number to change to make both pages bigger or smaller together.
+       0.8px → the 1920px Figma fits a 1536px-wide laptop window
+               (a 1920x1080 laptop at 125% display scaling)
+       1px   → exact Figma size, for a full 1920px-wide window
+     If you ever get a sideways scrollbar on the sign-up page, lower it.   */
+  --u: 0.8px;
+}
+
+/* Respect users who ask their OS to reduce animation. Leave this in. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keyboard focus ring — visible on every interactive element site-wide. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--pd-ink);
+  outline-offset: 2px;
+}

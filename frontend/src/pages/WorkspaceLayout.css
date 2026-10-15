@@ -1,0 +1,96 @@
+/* Keep navigation and content inside the viewport, including short screens. */
+.workspace.dashboard { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; grid-template-columns: 248px minmax(0, 1fr); }
+.dashboard .workspace-sidebar { position: static; height: 100%; min-height: 0; overflow: hidden; padding: 24px 16px 18px; gap: 0; }
+.dashboard .workspace-sidebar > a:first-of-type { flex-shrink: 0; align-self: flex-start; }
+.dashboard .workspace-role { margin: 14px 12px 26px; font-size: 10px; }
+.dashboard .workspace-nav-label { margin: 0 0 10px; font-size: 9px; }
+.dashboard .workspace-sidebar nav { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; display: flex; flex-direction: column; gap: 4px; padding: 2px 4px 8px 0; }
+.dashboard .workspace-sidebar nav button { flex-shrink: 0; min-height: 43px; padding: 9px 12px; font-size: 13px; line-height: 1.45; gap: 12px; }
+.dashboard .workspace-sidebar nav button > span[aria-hidden] { font-size: 18px; flex-shrink: 0; }
+.dashboard .workspace-sidebar-bottom { flex-shrink: 0; padding: 18px 10px 0; margin-top: auto; border-top: 1px solid #ffffff20; }
+.workspace-sidebar-caption { display: block; font-size: 9px; letter-spacing: 1.4px; opacity: .7; margin-bottom: 8px; }
+.dashboard .workspace-sidebar-bottom a { display: flex; justify-content: space-between; border: 0; padding: 0; font-size: 12px; }
+.dashboard .workspace-body { display: flex; flex-direction: column; min-height: 0; }
+.dashboard .workspace-topbar { flex-shrink: 0; min-height: 72px; padding: 16px 32px; }
+.dashboard .workspace-main { flex: 1; min-height: 0; width: 100%; max-width: none; margin: 0; padding: 32px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scroll-padding-top: 32px; }
+.dashboard .workspace-main > .admin-panel, .dashboard .workspace-main > .role-overview, .dashboard .workspace-footer { width: 100%; max-width: 1440px; margin-inline: auto; }
+.dashboard .admin-panel { font-family: Arial, Helvetica, sans-serif; }
+.dashboard .ad-head { margin-bottom: 24px; align-items: center; }
+.dashboard .ad-title { font-size: clamp(28px, 2.5vw, 36px); line-height: 1.2; color: var(--pd-ink); }
+.dashboard .ad-sub { font-size: 13px; line-height: 1.7; margin-top: 8px; color: var(--ws-muted); }
+.dashboard .ad-sheet { padding: 24px; border-radius: 12px; }
+.dashboard .ad-toolbar { gap: 14px; padding-bottom: 18px; margin-bottom: 0; border-bottom: 1px solid var(--ws-line); }
+.dashboard .ad-search { flex: 1 1 240px; max-width: 460px; background: #faf7f5; border: 1px solid var(--ws-line); border-radius: 8px; }
+.dashboard .ad-search input { font-family: inherit; font-size: 13px; }
+.dashboard .ad-seg-btn { border: 1px solid var(--ws-line); background: transparent; font-family: inherit; font-weight: 500; font-size: 12px; padding: 8px 13px; border-radius: 7px; }
+.dashboard .ad-seg-btn[aria-pressed="true"] { border-color: var(--pd-maroon); background: var(--pd-maroon); color: var(--pd-cream); }
+.dashboard .ad-table th { font-family: inherit; font-size: 11px; letter-spacing: .3px; }
+.dashboard .ad-table td { font-size: 13px; }
+.dashboard .ad-btn { font-family: inherit; border-radius: 7px; }
+.dashboard .ad-empty { padding: 50px 20px; }
+.dashboard .ad-empty-title { font-size: 22px; }
+.dashboard .ad-empty-body { max-width: 440px; margin: 10px auto 0; font-size: 13px; }
+.dashboard .workspace-footer { margin-top: 32px; border-top: 1px solid var(--ws-line); padding: 18px 0 0; font-size: 11px; }
+.dashboard .dashboard-overview-grid .workspace-panel { margin-top: 0; }
+@media (max-width: 1100px) and (min-width: 761px) {
+  .workspace.dashboard { grid-template-columns: 220px minmax(0, 1fr); }
+  .dashboard .workspace-main { padding: 24px; }
+  .dashboard .workspace-topbar { padding-inline: 24px; }
+  .dashboard .workspace-topbar > div { gap: 12px; }
+}
+@media (max-width: 760px) {
+  .workspace.dashboard { display: flex; flex-direction: column; height: auto; min-height: 100dvh; overflow: visible; }
+  .dashboard .workspace-sidebar { height: auto; overflow: visible; padding: 16px 20px 8px; }
+  .dashboard .workspace-role { margin: 8px 0; }
+  .dashboard .workspace-sidebar nav { flex-direction: row; overflow-x: auto; overflow-y: hidden; width: 100%; padding: 4px 0 10px; margin-top: 4px; }
+  .dashboard .workspace-sidebar nav button { min-height: 40px; }
+  .dashboard .workspace-nav-label, .dashboard .workspace-sidebar-bottom { display: none; }
+  .dashboard .workspace-body { flex: 1; }
+  .dashboard .workspace-topbar { padding: 14px 20px; min-height: 64px; gap: 10px; }
+  .dashboard .dashboard-breadcrumb { font-size: 11px; }
+  .dashboard .dashboard-breadcrumb span { margin: 0 6px; }
+  .dashboard .dashboard-live { display: none; }
+  .dashboard .workspace-main { padding: 24px 20px; overflow: visible; }
+  .dashboard .ad-sheet { padding: 16px; }
+  .dashboard .ad-search { max-width: none; }
+  .dashboard .ad-seg { gap: 5px; }
+  .dashboard .ad-seg-btn { padding: 7px 10px; }
+  .dashboard .ad-empty { padding: 36px 12px; }
+  .dashboard .workspace-footer { margin-top: 24px; }
+}
+.dashboard .message-notifications { position:relative; }
+.workspace.dashboard .workspace-sidebar { background:#32242f; color:#f8e9e8; }
+.workspace.dashboard .workspace-sidebar nav button { color:#f0e3e8; }
+.workspace.dashboard .workspace-sidebar nav button[aria-current="page"] { background:#edb8c2; color:#482d38; }
+.workspace.dashboard .workspace-role,.workspace.dashboard .workspace-nav-label { color:#d9becb; }
+.dashboard .workspace-topbar .message-notification-panel { display:block; }
+@media(max-width:620px) { .dashboard .message-notification-panel { position:fixed; top:80px; left:16px; right:16px; width:auto; } }
+/* Shared cream navigation for both administration roles. */
+.workspace.dashboard .workspace-sidebar { background:#fffaf5; color:#795b55; border-right:1px solid #e9dcd3; padding:24px 18px 18px; }
+.workspace-brand-row { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-shrink:0; padding:0 8px; }
+.workspace-brand-row>a { display:block; width:176px; max-width:100%; }
+.workspace.dashboard .workspace-role { color:#873a51; margin:14px 8px 28px; font:10px/1.5 Arial,sans-serif; letter-spacing:2px; }
+.workspace.dashboard .workspace-nav-label { color:#9b8176; padding-left:12px; font:9px/1.5 Arial,sans-serif; letter-spacing:2px; }
+.workspace.dashboard .workspace-sidebar nav { gap:6px; }
+.workspace.dashboard .workspace-sidebar nav button { color:#795b55; background:transparent; border:0; border-radius:12px; min-height:44px; padding:12px 14px; font:500 13px/1.5 Arial,sans-serif; box-shadow:none; }
+.workspace.dashboard .workspace-sidebar nav button::before { display:none; }
+.workspace.dashboard .workspace-sidebar nav button:hover { background:#f6ece5; color:#71354a; }
+.workspace.dashboard .workspace-sidebar nav button[aria-current="page"] { background:#873a51; color:#fffaf5; }
+.workspace.dashboard .workspace-sidebar nav button>span[aria-hidden] { display:grid; place-items:center; width:20px; font-size:17px; }
+.workspace.dashboard .workspace-sidebar .dashboard-count { background:#f3e3e4; color:#873a51; border:0; font:600 10px/1.5 Arial,sans-serif; }
+.workspace.dashboard .workspace-sidebar-bottom { border-color:#e9dcd3; color:#9b8176; }
+.workspace.dashboard .workspace-sidebar-bottom a { color:#873a51; font:500 12px/1.5 Arial,sans-serif; }
+.workspace.dashboard .workspace-topbar { background:#fffaf5; border-bottom:1px solid #e9dcd3; }
+.workspace.dashboard .workspace-topbar .text-button { border:1px solid #dec9be; border-radius:24px; padding:10px 16px; font:500 12px/1.4 Arial,sans-serif; color:#873a51; text-decoration:none; }
+.workspace.dashboard .workspace-topbar .role-pill { border-radius:22px; background:#f3e3e4; color:#873a51; font:600 11px/1.5 Arial,sans-serif; padding:7px 12px; }
+.workspace-menu-toggle { display:none; place-items:center; width:38px; height:38px; border:1px solid #dec9be; border-radius:50%; padding:0; background:transparent; color:#873a51; cursor:pointer; }
+.workspace-sidebar :is(button,a):focus-visible { outline:3px solid #bd7189; outline-offset:2px; }
+@media(max-width:760px) {
+ .workspace.dashboard .workspace-sidebar { position:relative; padding:16px 20px 12px; border-right:0; border-bottom:1px solid #e9dcd3; }
+ .workspace-brand-row { padding:0; }
+ .workspace-menu-toggle { display:grid; flex-shrink:0; }
+ .workspace.dashboard .workspace-role { margin:10px 0 0; font-size:9px; }
+ .workspace.dashboard .workspace-sidebar nav { display:none; width:100%; box-sizing:border-box; flex-direction:column; overflow-y:auto; overflow-x:hidden; max-height:60dvh; margin:16px 0 0; padding:10px; background:#fffaf5; border:1px solid #e2cec1; border-radius:16px; box-shadow:0 12px 32px #38252e10; }
+ .workspace.dashboard .workspace-sidebar.workspace-menu-open nav { display:flex; }
+ .workspace.dashboard .workspace-sidebar nav button { white-space:normal; width:100%; text-align:left; border-radius:10px; }
+}

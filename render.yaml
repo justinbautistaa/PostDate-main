@@ -1,0 +1,35 @@
+# Preview configuration. Free Render instances sleep and are not a production SLA.
+services:
+  - type: web
+    name: postdate
+    runtime: node
+    plan: free
+    autoDeployTrigger: off
+    buildCommand: npm ci --prefix backend --omit=dev && npm ci --prefix frontend --include=dev && npm run build --prefix frontend
+    startCommand: npm start --prefix backend
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 24.15.0
+      - key: NODE_ENV
+        value: production
+      - key: STORAGE_PROVIDER
+        value: cloudinary
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: MFA_ENCRYPTION_KEY
+        sync: false
+      - key: MAIL_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: TRUST_PROXY
+        sync: false

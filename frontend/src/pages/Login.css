@@ -1,0 +1,47 @@
+/* Flow-based layout keeps login, recovery and password reset usable at any width. */
+.login .login-main { display: grid; align-items: center; padding: 32px 20px 48px; }
+.login .auth-panel { width: min(100%, 480px); height: auto; background: transparent; }
+.login .auth-title { position: static; font-size: clamp(40px, 6vw, 64px); line-height: 1.15; white-space: normal; margin: 0 0 24px; }
+.login .auth-rule, .login .auth-card { display: none; }
+.login .auth-panel form { display: flex; flex-direction: column; gap: 12px; padding: clamp(22px, 4vw, 36px); border-radius: 22px 22px 0 0; background: var(--pd-cream); }
+.login .auth-label { position: static; width: auto; font-size: 15px; line-height: 1.5; white-space: normal; }
+.login .auth-input { position: static; width: 100%; height: 48px; padding: 10px 14px; font-size: 16px; font-weight: 400; border-radius: 8px; }
+.login .lf-password-label, .login .nf-repeat-label { margin-top: 8px; }
+.login .auth-hint-row { position: static; width: 100%; height: auto; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 12px; font-size: 12px; line-height: 1.6; }
+.login .auth-hint-text { text-align: left; overflow-wrap: anywhere; }
+.login .auth-pill { position: static; width: 100%; height: auto; min-height: 48px; align-items: center; padding: 10px 16px; margin-top: 12px; border-width: 2px; border-radius: 12px; font-size: 18px; line-height: 1.5; }
+.login .auth-register { position: static; width: 100%; padding: 0 24px 28px; background: var(--pd-cream); border-radius: 0 0 22px 22px; font-size: 12px; line-height: 1.7; color: var(--pd-maroon); }
+.login .rf-heading, .login .rf-blurb, .login .rf-timer, .login .rf-status { position: static; width: 100%; margin: 0; line-height: 1.6; }
+.login .rf-heading { font-size: 24px; }
+.login .rf-blurb, .login .rf-status { font-size: 12px; }
+.login .rf-blurb { color: var(--pd-ink); }
+.login .rf-timer { font-size: 28px; }
+.login .rf-blurb { text-transform: none; overflow-wrap: anywhere; font: 14px/1.7 Arial,sans-serif; }
+.login .rf-status { text-transform: none; font: 13px/1.6 Arial,sans-serif; }
+.recovery-actions { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; font: 13px/1.6 Arial,sans-serif; color: var(--pd-maroon); }
+.login.public-page { background: #fcf7f0; color: #342a28; }
+.login .login-main { width: 100%; max-width: 1200px; margin: 0 auto; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 64px; padding: 48px 32px 64px; }
+.login-welcome { background: #f1dfd2; border-radius: 24px 120px 24px 24px; padding: 36px; }
+.login-welcome h2 { font: 400 clamp(32px,3.5vw,46px)/1.1 var(--pd-display); color: #643443; letter-spacing: -.03em; margin: 20px 0; }
+.login-welcome > p:not(.public-eyebrow) { font: 15px/1.8 Arial,sans-serif; color: #756159; max-width: 310px; }
+.login-letter { display: flex; flex-direction: column; gap: 20px; padding: 26px; width: 78%; margin: 32px auto; transform: rotate(-6deg); border: 1px solid #d5b7ab; background: #fffaf1; color: #84364d; border-radius: 8px; box-shadow: 0 12px 25px #64344316; }
+.login-letter span, .login-letter small { font: 9px/1.6 var(--pd-mono); letter-spacing: .1em; }
+.login-letter strong { font: 400 32px/1.1 var(--pd-display); }
+.login-letter i { font: 50px/.8 Georgia,serif; align-self: end; }
+.login-welcome-foot { font: 11px/1.5 Arial,sans-serif; color: #756159; }
+.login .auth-title { text-align: left; text-transform: none; font-weight: 400; color: #643443; font-size: 46px; letter-spacing: -.03em; }
+.login .auth-panel form { padding: 30px; border: 1px solid #e5d7cb; border-bottom: 0; background: #fffdfa; }
+.login .auth-register { background: #fffdfa; border: 1px solid #e5d7cb; border-top: 0; font-weight: 400; text-transform: none; font: 13px/1.7 Arial,sans-serif; }
+.login .auth-label { font: 600 13px/1.5 Arial,sans-serif; text-transform: none; }
+.login .auth-input { background: #f7f0e9; border: 1px solid #dbcabf; font: 16px/1.5 Arial,sans-serif; }
+.login .auth-pill { border: 0; background: #84364d; color: #fff9f2; box-shadow: none; border-radius: 999px; font: 600 15px/1.5 Arial,sans-serif; text-transform: none; }
+.login .auth-hint-row { font: 12px/1.7 Arial,sans-serif; text-transform: none; }
+@media(max-width:800px) { .login .login-main { grid-template-columns: minmax(0,1fr); gap: 32px; padding: 24px 20px 40px; } .login-welcome { padding: 24px; max-width: 480px; width: 100%; margin: auto; } .login-letter, .login-welcome-foot { display: none; } .login-welcome h2 { font-size: 32px; } .login-welcome > p:not(.public-eyebrow) { margin-bottom: 0; } .login .auth-title { font-size: 38px; } .login .auth-panel form { padding: 24px; } }
+.mfa-form { font:14px/1.7 Arial,sans-serif; color:#795b55; padding:12px 0; }
+.mfa-form h3 { font:26px var(--pd-display); color:#71354a; }
+.mfa-form label,.member-settings form label { display:block; margin:12px 0; }
+.mfa-form input,.member-settings form input { display:block; width:100%; box-sizing:border-box; padding:12px; margin:6px 0 14px; border:1px solid #dcc6b8; border-radius:8px; background:#fcf5ee; font:inherit; }
+.mfa-secret { display:block; overflow-wrap:anywhere; white-space:pre-wrap; padding:14px; background:#f3e3e4; color:#71354a; border-radius:8px; }
+.mfa-form pre { max-height:240px; overflow:auto; padding:16px; background:#f3e3e4; font-size:13px; }
+.mfa-actions { display:flex; gap:12px; justify-content:flex-end; align-items:center; margin-top:18px; }
+.mfa-actions>button { border-radius:22px; border:1px solid #d9bfb3; padding:10px 18px; cursor:pointer; }

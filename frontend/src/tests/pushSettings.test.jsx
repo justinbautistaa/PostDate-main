@@ -1,0 +1,22 @@
+import React from "react";
+import { afterEach, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import PushSettings from "../components/profile/PushSettings";
+import api from "../api";
+vi.mock("../api", () => ({ default: { get: vi.fn(), post: vi.fn() } }));
+const original = Object.getOwnPropertyDescriptor(navigator, "serviceWorker");
+afterEach(() => { vi.unstubAllGlobals(); if (original) Object.defineProperty(navigator, "serviceWorker", original); else delete navigator.serviceWorker; vi.resetAllMocks(); });
+it("asks permission only after a click and does not subscribe when permission is denied", async () => {
+  const permission = vi.fn().mockResolvedValue("denied"), register = vi.fn();
+  vi.stubGlobal("isSecureContext", true); vi.stubGlobal("PushManager", class {}); vi.stubGlobal("Notification", { requestPermission: permission });
+  Object.defineProperty(navigator, "serviceWorker", { configurable: true, value: { getRegistration: vi.fn().mockResolvedValue(undefined), register } });
+  api.get.mockResolvedValue({ data: { enabled: true, publicKey: "test-public-key" } });
+  render(<PushSettings />);
+  await act(async () => {});
+  expect(permission).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Enable browser notifications" }));
+  expect(permission).toHaveBeenCalledOnce();
+  await screen.findByText(/Notifications weren’t allowed/);
+  expect(register).not.toHaveBeenCalled();
+  expect(api.post).not.toHaveBeenCalled();
+});
