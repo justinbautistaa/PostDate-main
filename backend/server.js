@@ -18,8 +18,7 @@ function createApp() {
   const app = express();
   app.disable("x-powered-by");
   app.set("query parser", "simple");
-  // Keep trust proxy disabled unless exact proxy addresses are configured.
-  if (process.env.TRUST_PROXY) app.set("trust proxy", process.env.TRUST_PROXY.split(",").map((value) => value.trim()));
+  require("./utils/proxy").configureProxy(app);
   app.use(helmet({ contentSecurityPolicy: { directives: {
     "script-src": ["'self'"], "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com"], "img-src": ["'self'", "blob:", "data:", ...(isCloudStorage() ? [`https://res.cloudinary.com/${cloudConfig().cloud}/`] : [])],

@@ -177,7 +177,7 @@ test("malformed JSON and operator inputs return safe validation errors",async()=
 });
 test("enrollment is restricted to the account owner and requires the current password",async()=>{
   await call("post","/auth/mfa/enroll").send({password}).expect(401);
-  await call("post","/auth/mfa/enroll",token(alice)).send({password:"wrong-password"}).expect(401);
+  await call("post","/auth/mfa/enroll",token(alice)).send({password:"wrong-password"}).expect(403);
   await call("post","/auth/mfa/enroll",token(alice)).send({password,userId:bob.id}).expect(200);
   const challenge=await Challenge.findOne({userId:alice.id});
   expect(challenge).toBeTruthy();

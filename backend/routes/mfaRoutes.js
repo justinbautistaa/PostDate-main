@@ -15,7 +15,7 @@ router.get("/auth/mfa/status", requireAuth, asyncHandler(async (req, res) => {
 }));
 router.post("/auth/mfa/enroll", authLimiter, requireAuth, asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.userId).select(secretFields);
-  if (typeof req.body?.password !== "string" || Buffer.byteLength(req.body.password) > 72 || !await bcrypt.compare(req.body.password, user.passwordHash)) return bad(res);
+  if (typeof req.body?.password !== "string" || Buffer.byteLength(req.body.password) > 72 || !await bcrypt.compare(req.body.password, user.passwordHash)) return res.status(403).json({ message: "Current password is incorrect. Please try again." });
   if (user.mfaEnabled) return res.status(409).json({ message: "MFA is already enabled." });
   try { res.json(await mfa.begin(user, true)); } catch { res.status(503).json({ message: "MFA is not configured on this server." }); }
 }));

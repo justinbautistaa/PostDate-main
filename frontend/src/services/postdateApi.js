@@ -60,7 +60,7 @@ export async function submitSignup(signup) {
   pendingVerificationEmail = signup.email.trim().toLowerCase();
 
   if (photos.length === 0) {
-    const { data } = await api.post("/signup", { ...fields, tags });
+    const { data } = await api.post("/signup", { ...fields, tags }, { timeout: 180000 });
     return data;
   }
 
@@ -71,7 +71,7 @@ export async function submitSignup(signup) {
   form.append("tags", JSON.stringify(tags));
   photos.forEach((file) => form.append("photos", file));
 
-  const { data } = await api.post("/signup", form);
+  const { data } = await api.post("/signup", form, { timeout: 180000 });
   return data;
 }
 
