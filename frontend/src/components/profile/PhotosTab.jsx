@@ -56,6 +56,7 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
     const files = Array.from(event.target.files ?? []);
     event.target.value = ""; // lets the same file be picked again later
     if (files.length === 0) return;
+    if (files.reduce((total, file) => total + file.size, 0) > 50 * 1024 * 1024) { setError("Choose up to 50 MB of photos per upload."); return; }
 
     setUploading(true);
     setError("");
@@ -112,7 +113,7 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
         </p>
       )}
 
-      <p className="photos-guidance">JPG, PNG or WEBP · Up to 5 MB each · Static GIF also supported</p>
+      <p className="photos-guidance">JPG, PNG or WEBP · Up to 50 MB per upload · Static GIF also supported</p>
       {tiles.length === 0 && <p className="photos-empty">No photos yet. Add your first photo to get started.</p>}
       <div className="photos-grid">
         {tiles.map(({ id, url, span, isAvatar, path }) => (

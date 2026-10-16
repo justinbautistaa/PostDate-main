@@ -45,9 +45,10 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
     if (files.some(file => !supported.includes(file.type))) {
       setFileError("Choose a JPG, PNG, WEBP or static GIF photo. HEIC files need to be converted first."); return;
     }
-    if (files.some(file => file.size > 5 * 1024 * 1024)) {
-      setFileError("Each photo must be under 5 MB."); return;
+    if (files.some(file => file.size > 50 * 1024 * 1024)) {
+      setFileError("Each photo must be 50 MB or smaller."); return;
     }
+    if ([...photos.map(photo => photo.file), ...files].reduce((total, file) => total + file.size, 0) > 50 * 1024 * 1024) { setFileError("Choose up to 50 MB of photos in total."); return; }
     if (!files.length) return;
     if (photos.length + files.length > 10) { setFileError("You can add up to 10 photos."); return; }
     setFileError("");
@@ -62,7 +63,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
       })(),
     }));
     setPhotos((prev) => [...prev, ...next]);
-  }, [photos.length]);
+  }, [photos]);
 
   const removePhoto = (id) => {
     setPhotos((prev) => {
@@ -254,7 +255,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
           />
 
           {photos.length === 0 ? (
-            <span className="photos-choose-label">Choose photos<br /><small>JPG, PNG or WEBP · Up to 5 MB each</small></span>
+            <span className="photos-choose-label">Choose photos<br /><small>JPG, PNG or WEBP · Up to 50 MB total</small></span>
           ) : (
             <div className="photos-grid">
               {photos.map((p) => (

@@ -27,7 +27,8 @@ function notFound(req, res, next) {
 // Multer's own error codes -> a message safe to show the person who hit it.
 // See middleware/upload.js for the limits these refer to.
 const MULTER_MESSAGES = {
-  LIMIT_FILE_SIZE: "Each photo must be under 5MB",
+  LIMIT_FILE_SIZE: "Each photo must be 50 MB or smaller",
+  LIMIT_TOTAL_FILE_SIZE: "Choose up to 50 MB of photos per upload",
   LIMIT_FILE_COUNT: "Too many photos in one upload",
   LIMIT_UNEXPECTED_FILE: "Too many photos in one upload",
 };
