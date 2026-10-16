@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 
 function emailConfigured() {
+  if (process.env.MAIL_MODE === "gmail-api") return require("./gmailApi").configured();
   if (process.env.MAIL_MODE === "gmail") return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
   if (process.env.MAIL_MODE === "smtp") return Boolean(process.env.SMTP_HOST && process.env.MAIL_FROM);
   return Boolean(process.env.MAIL_API_KEY && process.env.MAIL_FROM);
@@ -11,6 +12,7 @@ function codeHash(email, code) {
 }
 
 async function emailCode(email, code, purpose = "verification") {
+  if (process.env.MAIL_MODE === "gmail-api") return require("./gmailApi").sendCode(email, code, purpose);
   if (["gmail", "smtp"].includes(process.env.MAIL_MODE)) {
     return require("./mail").sendCode(email, code, purpose);
   }

@@ -21,9 +21,15 @@ services:
         sync: false
       - key: MFA_ENCRYPTION_KEY
         sync: false
-      - key: MAIL_API_KEY
+      - key: MAIL_MODE
+        value: gmail-api
+      - key: GMAIL_USER
         sync: false
-      - key: MAIL_FROM
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
