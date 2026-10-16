@@ -17,6 +17,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
   const [photos, setPhotos] = useState([]); // { id, file, url }
   const [dragging, setDragging] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [fileError, setFileError] = useState("");
   useEffect(() => {
     const restored = initialFiles.map((file, index) => {
       const url = URL.createObjectURL(file);
@@ -39,8 +40,18 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
   }, []);
 
   const addFiles = useCallback((fileList) => {
-    const imageFiles = Array.from(fileList).filter((f) => f.type.startsWith("image/"));
-    if (!imageFiles.length) return;
+    const files = Array.from(fileList);
+    const supported = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (files.some(file => !supported.includes(file.type))) {
+      setFileError("Choose a JPG, PNG, WEBP or static GIF photo. HEIC files need to be converted first."); return;
+    }
+    if (files.some(file => file.size > 5 * 1024 * 1024)) {
+      setFileError("Each photo must be under 5 MB."); return;
+    }
+    if (!files.length) return;
+    if (photos.length + files.length > 10) { setFileError("You can add up to 10 photos."); return; }
+    setFileError("");
+    const imageFiles = files;
     const next = imageFiles.map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
       file,
@@ -51,7 +62,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
       })(),
     }));
     setPhotos((prev) => [...prev, ...next]);
-  }, []);
+  }, [photos.length]);
 
   const removePhoto = (id) => {
     setPhotos((prev) => {
@@ -87,9 +98,9 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
       onButtonClick={handleContinue}
       onBack={onBack}
       error={
-        touched && !isValid
+        fileError || (touched && !isValid
           ? `Add at least ${minPhotos} photo${minPhotos > 1 ? "s" : ""} to continue.`
-          : null
+          : null)
       }
     >
       <style>{`
@@ -221,6 +232,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
           tabIndex={0}
           aria-label="Choose photos to upload"
           onKeyDown={(e) => {
+            if (e.target !== e.currentTarget) return;
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               openBrowser();
@@ -230,10 +242,11 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             multiple
             className="photos-hidden-input"
             tabIndex={-1}
+            onClick={event => event.stopPropagation()}
             onChange={(e) => {
               if (e.target.files) addFiles(e.target.files);
               e.target.value = "";
@@ -241,7 +254,7 @@ export default function PhotosForm({ step = 2, totalSteps = 3, minPhotos = 1, on
           />
 
           {photos.length === 0 ? (
-            <span className="photos-choose-label">Choose a file</span>
+            <span className="photos-choose-label">Choose photos<br /><small>JPG, PNG or WEBP · Up to 5 MB each</small></span>
           ) : (
             <div className="photos-grid">
               {photos.map((p) => (
