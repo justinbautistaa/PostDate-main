@@ -91,6 +91,12 @@
  .signup-profile-preview { margin-top:20px; }
 }
 .signup-consent { display:flex; align-items:flex-start; gap:10px; font:12px/1.7 Arial,sans-serif; color:#795b55; margin-top:16px; }
-.signup-consent input { flex-shrink:0; margin-top:4px; accent-color:#873a51; }
+.signup .stamp-wrapper .signup-consent { display:grid; grid-template-columns:18px minmax(0,1fr); align-items:start; width:100%; gap:12px; margin:20px 0 0; padding:16px; border:1px solid #e8d9cf; border-radius:12px; background:#fcf7f0; font:13px/1.7 Arial,sans-serif; text-transform:none; letter-spacing:normal; }
+.signup .stamp-wrapper .signup-consent input[type=checkbox] { position:static; display:block; width:18px; min-width:18px; height:18px; padding:0; margin:3px 0 0; accent-color:#873a51; cursor:pointer; }
+.signup .signup-consent > span { min-width:0; width:auto; overflow-wrap:break-word; }
+.signup .taste-field-group { flex:none; min-width:0; gap:12px; }
+.signup .taste-grid { flex:none; overflow:visible; }
+.signup .taste-count { margin:0; font:12px/1.6 Arial,sans-serif; color:#806b62; opacity:1; }
+.signup .signup-consent + [role=alert] { margin:0; color:#84364d; font:13px/1.6 Arial,sans-serif; }
 .signup-consent a { color:#873a51; text-underline-offset:3px; }
 .member-settings input[type=checkbox] { width:auto; display:inline-block; margin:0 8px 0 0; }
