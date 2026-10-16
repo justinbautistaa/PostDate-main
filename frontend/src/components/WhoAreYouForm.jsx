@@ -1,3 +1,4 @@
+import PasswordInput from "./PasswordInput";
 import { useState } from "react";
 import StampCardShell from "./StampCardShell";
 
@@ -283,9 +284,9 @@ export default function WhoAreYouForm({ step = 1, totalSteps = 3, onContinue, in
       <div className="wru-pair">
         <div className="wru-group">
           <label className="wru-label" htmlFor="stamp-password">Password</label>
-          <input
+          <PasswordInput
             id="stamp-password"
-            type="password"
+            
             placeholder={`${MIN_PASSWORD_LENGTH}+ characters`}
             autoComplete="new-password"
             value={values.password}

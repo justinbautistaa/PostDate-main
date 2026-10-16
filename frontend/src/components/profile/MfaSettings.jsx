@@ -1,3 +1,4 @@
+import PasswordInput from "../PasswordInput";
 import { useEffect, useState } from "react";
 import api from "../../api";
 import MfaForm from "../auth/MfaForm";
@@ -8,5 +9,5 @@ export default function MfaSettings() {
     event.preventDefault(); if (busy) return; setBusy(true); setMessage("");
     try { if (!status.enabled) setPending((await api.post("/auth/mfa/enroll", { password })).data); else { await api.post("/auth/mfa/disable", { password, code }); setStatus({ ...status, enabled: false }); setMessage("MFA disabled. Other sessions were signed out."); } setPassword(""); setCode(""); }
     catch (err) { setMessage(err?.response?.data?.message || "MFA settings could not be changed."); } finally { setBusy(false); }
-  }}><label>Current password<input type="password" autoComplete="current-password" maxLength={72} value={password} onChange={event => setPassword(event.target.value)} required /></label>{status.enabled && <label>Authenticator or recovery code<input autoComplete="one-time-code" maxLength={24} value={code} onChange={event => setCode(event.target.value)} required /></label>}<button className="outline-button" disabled={busy}>{busy ? "Updating…" : status.enabled ? "Disable MFA" : "Set up MFA"}</button></form>}</>}{message && <p role="status">{message}</p>}</section>;
+  }}><label>Current password<PasswordInput autoComplete="current-password" maxLength={72} value={password} onChange={event => setPassword(event.target.value)} required /></label>{status.enabled && <label>Authenticator or recovery code<input autoComplete="one-time-code" maxLength={24} value={code} onChange={event => setCode(event.target.value)} required /></label>}<button className="outline-button" disabled={busy}>{busy ? "Updating…" : status.enabled ? "Disable MFA" : "Set up MFA"}</button></form>}</>}{message && <p role="status">{message}</p>}</section>;
 }

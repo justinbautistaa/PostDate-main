@@ -1,3 +1,4 @@
+import PasswordInput from "../PasswordInput";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuthAction from "./useAuthAction";
@@ -111,10 +112,10 @@ export default function LoginForm({ defaultEmail = "", notice = "", onSubmit, on
       <label className="auth-label lf-password-label" htmlFor="auth-password">
         Password
       </label>
-      <input
+      <PasswordInput
         id="auth-password"
         className="auth-input lf-password"
-        type="password"
+        
         autoComplete="current-password"
         autoFocus={!!defaultEmail}
         value={password}

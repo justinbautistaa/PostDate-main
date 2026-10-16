@@ -1,3 +1,4 @@
+import PasswordInput from "../PasswordInput";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api";
@@ -12,5 +13,5 @@ export default function DeleteAccount() {
     try { await api.post("/privacy/delete-account", { password, code: code.trim(), confirmation }); clearToken(); setPassword(""); setCode(""); setDone(true); }
     catch (err) { setError(err?.response?.data?.message || "Your deletion request could not be confirmed. Please try again."); }
     finally { setBusy(false); }
-  }}><label>Current password<input type="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></label><label>Authenticator or recovery code (if MFA is enabled)<input autoComplete="one-time-code" maxLength={24} value={code} onChange={event => setCode(event.target.value)} /></label><label>Type DELETE to confirm<input required pattern="DELETE" value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>{error && <p role="alert">{error}</p>}<div className="mfa-actions"><button type="button" disabled={busy} onClick={() => { setOpen(false); setPassword(""); setCode(""); setConfirmation(""); }}>Keep my account</button><button type="submit" className="outline-button" disabled={busy || confirmation !== "DELETE"}>{busy ? "Closing account…" : "Permanently delete account"}</button></div></form>}</section>;
+  }}><label>Current password<PasswordInput autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} /></label><label>Authenticator or recovery code (if MFA is enabled)<input autoComplete="one-time-code" maxLength={24} value={code} onChange={event => setCode(event.target.value)} /></label><label>Type DELETE to confirm<input required pattern="DELETE" value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label>{error && <p role="alert">{error}</p>}<div className="mfa-actions"><button type="button" disabled={busy} onClick={() => { setOpen(false); setPassword(""); setCode(""); setConfirmation(""); }}>Keep my account</button><button type="submit" className="outline-button" disabled={busy || confirmation !== "DELETE"}>{busy ? "Closing account…" : "Permanently delete account"}</button></div></form>}</section>;
 }

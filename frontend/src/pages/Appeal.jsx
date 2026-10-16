@@ -1,3 +1,4 @@
+import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SiteNav from "../components/SiteNav";
@@ -24,7 +25,7 @@ export default function Appeal() {
       <p>If your account is suspended, explain what happened and ask the team to reconsider. You can submit this form without logging in.</p>
       <form onSubmit={submit}>
         <label>Registered email<input required type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>
-        <label>Account password<input required type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} /></label>
+        <label>Account password<PasswordInput required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} /></label>
         <label>Your explanation<textarea required minLength={10} maxLength={1000} rows={5} value={message} onChange={e => setMessage(e.target.value)} /></label>
         <small>10–1,000 characters. One pending appeal per account. Your password confirms account ownership and is not included in the appeal.</small>
         {error && <p role="alert">{error}</p>}

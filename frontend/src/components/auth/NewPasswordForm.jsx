@@ -1,3 +1,4 @@
+import PasswordInput from "../PasswordInput";
 import { useState } from "react";
 import useAuthAction from "./useAuthAction";
 
@@ -59,10 +60,10 @@ export default function NewPasswordForm({ onSubmit }) {
       <label className="auth-label nf-new-label" htmlFor="auth-new-password">
         New password
       </label>
-      <input
+      <PasswordInput
         id="auth-new-password"
         className="auth-input nf-new"
-        type="password"
+        
         autoComplete="new-password"
         autoFocus
         value={password}
@@ -74,10 +75,10 @@ export default function NewPasswordForm({ onSubmit }) {
       <label className="auth-label nf-repeat-label" htmlFor="auth-repeat-password">
         Repeat
       </label>
-      <input
+      <PasswordInput
         id="auth-repeat-password"
         className="auth-input nf-repeat"
-        type="password"
+        
         autoComplete="new-password"
         value={repeat}
         onChange={edit(setRepeat)}
