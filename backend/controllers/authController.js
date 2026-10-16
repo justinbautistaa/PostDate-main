@@ -164,7 +164,10 @@ async function register(req, res) {
       // two requests raced past the findOne check above
       return res.status(409).json({ message: "An account with that email already exists" });
     }
-    console.error("[auth] register failed");
+    // Preserve safe storage diagnostics for signup photos as well as the
+    // profile upload route. Never expose raw provider or database errors.
+    if (typeof err.code === "string" && err.code.startsWith("PHOTO_STORAGE_")) throw err;
+    console.error("[auth] register failed", err.name === "ValidationError" ? "validation" : "internal");
     return res.status(500).json({ message: "Could not create account" });
   }
 }

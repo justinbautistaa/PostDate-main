@@ -370,7 +370,7 @@ export async function updateProfileDetails(updates) {
 export async function uploadProfilePhotos(files) {
   const form = new FormData();
   files.forEach((file) => form.append("photos", file));
-  const { data } = await api.post("/profile/photos", form);
+  const { data } = await api.post("/profile/photos", form, { timeout: 180000 });
   return { photoPaths: data.photos, avatarPath: data.avatar };
 }
 

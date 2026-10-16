@@ -145,6 +145,7 @@ export default function Profile() {
             <ProfileIdentity
               profile={{ ...profile, avatarUrl: toPhotoUrl(profile.avatarPath) }}
               onEdit={() => setEditOpen(true)}
+              onPhotos={() => { setTab("photos"); requestAnimationFrame(() => document.getElementById("ppanel-photos")?.scrollIntoView({ block: "nearest", behavior: "smooth" })); }}
             />
 
             <div className="profile-right">

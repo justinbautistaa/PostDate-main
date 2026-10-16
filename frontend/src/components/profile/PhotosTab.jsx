@@ -212,6 +212,7 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
         }
       `}</style>
 
+      <p style={{ margin: 0, font: "14px/1.7 Arial, sans-serif", color: "#795b55" }}>Add a photo below, then choose ★ on the photo you want to use as your profile picture.</p>
       {error && (
         <p className="photos-error" role="alert">
           {error}

@@ -3,11 +3,11 @@ const crypto = require("crypto");
 function isCloudStorage() { return process.env.STORAGE_PROVIDER === "cloudinary"; }
 function validFilename(filename) { return /^[a-f0-9]{32}\.webp$/.test(filename); }
 function cloudConfig() {
-  const cloud = process.env.CLOUDINARY_CLOUD_NAME;
+  const cloud = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   if (!cloud || !/^[a-z0-9_-]{1,64}$/i.test(cloud) || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     throw new Error("Cloud photo storage is not configured");
   }
-  return { cloud, key: process.env.CLOUDINARY_API_KEY, secret: process.env.CLOUDINARY_API_SECRET };
+  return { cloud, key: process.env.CLOUDINARY_API_KEY.trim(), secret: process.env.CLOUDINARY_API_SECRET.trim() };
 }
 function signature(params, secret) {
   const source = Object.keys(params).sort().map((key) => `${key}=${params[key]}`).join("&");
@@ -21,10 +21,23 @@ async function cloudRequest(action, params, buffer) {
   form.append("api_key", key);
   form.append("signature", signature(signed, secret));
   if (buffer) form.append("file", new Blob([buffer], { type: "image/webp" }), "photo.webp");
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/${action}`, {
-    method: "POST", body: form, signal: AbortSignal.timeout(15000),
-  });
-  if (!response.ok) throw new Error("Cloud photo operation failed");
+  let response;
+  try {
+    response = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/image/${action}`, {
+      method: "POST", body: form, signal: AbortSignal.timeout(15000),
+    });
+  } catch {
+    const error = new Error("Cloud photo operation failed");
+    error.code = "PHOTO_STORAGE_UNAVAILABLE";
+    throw error;
+  }
+  if (!response.ok) {
+    const error = new Error("Cloud photo operation failed");
+    error.code = response.status === 401 ? "PHOTO_STORAGE_AUTH"
+      : response.status === 403 ? "PHOTO_STORAGE_PERMISSION"
+      : response.status === 429 ? "PHOTO_STORAGE_QUOTA" : "PHOTO_STORAGE_REJECTED";
+    throw error;
+  }
   return response.json();
 }
 function publicId(filename) {

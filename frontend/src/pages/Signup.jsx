@@ -78,7 +78,9 @@ function Signup() {
       setError(
         err?.response?.status === 409
           ? "An account with that email already exists. Try logging in instead."
-          : "We could not create your profile. Check your details and try again."
+          : [400, 413, 429, 503].includes(err?.response?.status) && typeof err?.response?.data?.message === "string"
+            ? err.response.data.message
+            : "We could not create your profile. Please try again. If it continues, contact the site owner."
       );
     } finally {
       setSubmitting(false);

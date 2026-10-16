@@ -41,6 +41,17 @@ const MULTER_MESSAGES = {
  */
 function errorHandler(err, req, res, next) {
   if (res.headersSent) return next(err);
+  const photoErrors = {
+    PHOTO_STORAGE_AUTH: "Photo storage credentials were rejected. The site owner needs to check the Cloudinary cloud name, API key and matching API secret.",
+    PHOTO_STORAGE_PERMISSION: "Photo storage denied this upload. The site owner needs to check Cloudinary key permissions and account restrictions.",
+    PHOTO_STORAGE_QUOTA: "Photo storage has reached a usage limit. Please try again later.",
+    PHOTO_STORAGE_UNAVAILABLE: "Photo storage could not be reached. Please try uploading one photo again.",
+    PHOTO_STORAGE_REJECTED: "Photo storage rejected the request. The site owner needs to check the Cloudinary configuration.",
+  };
+  if (Object.hasOwn(photoErrors, err.code || "")) {
+    console.error(`[photo-storage] ${err.code}`);
+    return res.status(503).json({ message: photoErrors[err.code] });
+  }
   if (err.code === 50) return res.status(503).json({ message: "The request took too long. Please try again." });
   // Never log bodies, query strings, driver errors or exception messages.
   console.error("[request] failed");

@@ -17,6 +17,8 @@
 /* 🎛️ EDIT THE META ROWS HERE ----------------------------------------------
    `key` must match a field name coming back from the backend; `label` is what
    the user sees. Reorder, rename or delete rows freely.                    */
+import { useState } from "react";
+
 const META_ROWS = [
   { key: "address", label: "Address" },
   { key: "age", label: "Age" },
@@ -38,7 +40,8 @@ const GENDER_LABELS = {
   "prefer-not-to-say": "Prefer not to say",
 };
 
-export default function ProfileIdentity({ profile = {}, onEdit }) {
+export default function ProfileIdentity({ profile = {}, onEdit, onPhotos }) {
+  const [failedAvatar, setFailedAvatar] = useState(null);
   return (
     <div className="pid">
       <style>{`
@@ -158,20 +161,22 @@ export default function ProfileIdentity({ profile = {}, onEdit }) {
 
       {/* 🔌 BACKEND: profile.avatarUrl. While it is null the salmon circle
           with the word PHOTO stands in, exactly like the mockup. */}
-      {profile.avatarUrl ? (
+      {profile.avatarUrl && failedAvatar !== profile.avatarUrl ? (
         <img
           className="pid-avatar"
           src={profile.avatarUrl}
           alt={profile.name ? `${profile.name}'s photo` : "Profile photo"}
+          onError={() => setFailedAvatar(profile.avatarUrl)}
         />
       ) : (
         <div className="pid-avatar" aria-hidden="true">
-          Photo
+          {(profile.displayName || profile.name || "P").trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("")}
         </div>
       )}
 
       <div className="pid-card">
         <div className="pid-name-row">
+          {onPhotos && <button type="button" className="pid-edit-btn" onClick={onPhotos}>Change photo</button>}
           {/* profile.displayName is Profile.profileName — falls back to the
               account's legal name (profile.name) when it hasn't been set. */}
           <h1 className="pid-name">{profile.displayName || profile.name || "Name"}</h1>
