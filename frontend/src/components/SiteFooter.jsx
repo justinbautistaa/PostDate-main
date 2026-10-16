@@ -10,6 +10,8 @@
  *     <a href="/terms">Terms</a>
  *   </SiteFooter>
  */
+import { Link } from "react-router-dom";
+
 export default function SiteFooter({ children }) {
   return (
     <footer className="sitefooter">
@@ -42,9 +44,37 @@ export default function SiteFooter({ children }) {
           border-bottom: 1px solid transparent;
         }
         .sitefooter a:hover { border-bottom-color: var(--pd-cream); }
+        .sitefooter.sitefooter {
+          background: #fcf7f0;
+          color: #756159;
+          border-top: 1px solid #e8ded4;
+          padding: 22px 24px;
+          font: 12px/1.6 Arial, sans-serif;
+        }
+        .sitefooter-inner {
+          width: 100%;
+          max-width: 1136px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px 24px;
+          flex-wrap: wrap;
+        }
+        .sitefooter .sitefooter-privacy { color: #756159; }
+        .sitefooter .sitefooter-privacy:hover { color: #84364d; border-bottom-color: #84364d; }
+        .sitefooter .sitefooter-privacy:focus-visible { outline: 2px solid #84364d; outline-offset: 4px; }
+        .sitefooter-note { text-align: center; }
+        @media (max-width: 560px) {
+          .sitefooter-note { order: 1; flex-basis: 100%; text-align: left; }
+        }
       `}</style>
 
-      {children ?? <span className="sitefooter-mark">POSTDATE<a>™</a></span>}
+      <div className="sitefooter-inner">
+        <span className="sitefooter-copyright">© {new Date().getFullYear()} PostDate</span>
+        {children && <div className="sitefooter-note">{children}</div>}
+        <Link className="sitefooter-privacy" to="/privacy">Privacy</Link>
+      </div>
     </footer>
   );
 }

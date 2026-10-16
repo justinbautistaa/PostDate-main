@@ -10,7 +10,9 @@ const api = axios.create({
 });
 export default api;
 api.interceptors.response.use(response => response, error => {
-  if (error?.response?.status === 401 && !/\/auth\/(login|recovery)/.test(error.config?.url || "")) {
+  // MFA verification authenticates a challenge, not the current session.
+  // A rejected code must stay in the form so the user can try again.
+  if (error?.response?.status === 401 && !/\/auth\/(login|recovery|mfa\/verify)/.test(error.config?.url || "")) {
     window.dispatchEvent(new Event("postdate:session-expired"));
   }
   return Promise.reject(error);

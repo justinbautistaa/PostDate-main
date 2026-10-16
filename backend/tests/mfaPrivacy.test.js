@@ -95,6 +95,8 @@ test("authenticator enrollment, replay prevention, single-use recovery, and stal
   const authenticator=new OTPAuth.TOTP({secret:enrolled.secret});
   const enabled=await call("post","/auth/mfa/verify").send({challenge:enrolled.challenge,code:authenticator.generate()}).expect(200);
   expect(enabled.body.recoveryCodes).toHaveLength(8);
+  // Enrollment revokes old sessions but keeps this browser authenticated.
+  await call("get","/auth/session",enabled.headers["set-cookie"][0].split(";")[0]).expect(200);
   const user=await User.findById(alice.id).select("+mfaSecret +mfaRecoveryHashes");
   expect(user.mfaSecret).not.toContain(enrolled.secret);
   expect(user.mfaRecoveryHashes).not.toContain(enabled.body.recoveryCodes[0]);
@@ -111,6 +113,19 @@ test("authenticator enrollment, replay prevention, single-use recovery, and stal
   const next=authenticator.generate({timestamp:Date.now()+30000});
   await call("post","/auth/mfa/verify").send({challenge:second.challenge,code:next}).expect(200);
 });
+test("disabling MFA preserves the current session and rejected factors do not expire it",async()=>{
+  const secret=new OTPAuth.Secret({size:20}).base32;
+  await User.updateOne({_id:alice.id},{$set:{mfaEnabled:true,mfaSecret:mfa.encrypt(secret),mfaLastCounter:-1}});
+  const oldCookie=`postdate=${jwt.sign({userId:alice.id,version:0,mfaVerified:true},process.env.JWT_SECRET,{issuer:"postdate",audience:"postdate-web"})}`;
+  await call("post","/auth/mfa/disable",oldCookie).send({password:"wrong",code:"000000"}).expect(403);
+  await call("get","/auth/session",oldCookie).expect(200);
+  const code=new OTPAuth.TOTP({secret}).generate();
+  const disabled=await call("post","/auth/mfa/disable",oldCookie).send({password,code:code.slice(0,3)+" "+code.slice(3)}).expect(200);
+  expect(disabled.body.enabled).toBe(false);
+  await call("get","/auth/session",disabled.headers["set-cookie"][0].split(";")[0]).expect(200);
+  await call("get","/auth/session",oldCookie).expect(401);
+});
+
 test("MFA challenges expire and stop accepting guesses after five attempts",async()=>{
   const enrolled=(await call("post","/auth/mfa/enroll",token(alice)).send({password})).body;
   const valid=new OTPAuth.TOTP({secret:enrolled.secret}).generate();

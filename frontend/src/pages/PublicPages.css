@@ -42,7 +42,7 @@
 .landing-invite > span { font-size: 56px; color: #84364d; }
 .landing-invite h2 { margin-bottom: 0; }
 .landing-invite .public-primary { flex-shrink: 0; }
-.public-page .sitefooter, .login .sitefooter { background: #552c39; padding: 24px; }
+.public-page .sitefooter, .login .sitefooter { background: #fcf7f0; padding: 22px 24px; border-top: 1px solid #e8ded4; color: #756159; }
 .public-page .sitefooter-mark, .login .sitefooter-mark { font-size: 28px; }
 @media(max-width:850px) { .landing-main { padding: 0 24px; } .landing-hero { grid-template-columns: 1fr; padding: 38px 0; } .connection-art { max-width: 480px; width: 100%; justify-self: center; } .landing-steps ol { grid-template-columns: 1fr; } .landing-invite { flex-wrap: wrap; } .landing-intro h1 { font-size: clamp(42px,8vw,65px); } }
 @media(max-width:450px) { .public-page .sitenav, .login .sitenav { justify-content: center; gap: 18px; } .connection-art { min-height: 430px; } .hello-card { padding: 20px; min-height: 250px; width: 70%; } .hello-card strong { font-size: 29px; } .hello-card-front { top: 148px; } .art-seal { width: 80px; height: 80px; font-size: 8px; left: 12px; bottom: 16px; } .landing-invite { padding: 24px; } }

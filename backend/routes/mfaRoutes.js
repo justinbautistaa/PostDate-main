@@ -8,6 +8,7 @@ const { asyncHandler } = require("../middleware/errorHandler");
 const { setSession } = require("../utils/session");
 const secretFields = "+passwordHash +sessionVersion +mfaSecret +mfaLastCounter +mfaRecoveryHashes";
 const bad = res => res.status(401).json({ message: "Invalid or expired authentication code. Try a new code or a recovery code." });
+const badSettingsFactor = res => res.status(403).json({ message: "Password or authentication code is incorrect. Wait for a fresh code, or use an unused recovery code." });
 router.get("/auth/mfa/status", requireAuth, asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.userId).select("mfaEnabled role");
   res.json({ enabled: user.mfaEnabled, required: mfa.staffRequired(user.role) });
@@ -50,7 +51,8 @@ router.post("/auth/mfa/verify", authLimiter, asyncHandler(async (req, res) => {
 router.post("/auth/mfa/disable", authLimiter, requireAuth, asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.userId).select(secretFields);
   if (mfa.staffRequired(user.role)) return res.status(403).json({ message: "MFA is required for staff and administrators in production." });
-  if (!user.mfaEnabled || typeof req.body?.password !== "string" || Buffer.byteLength(req.body.password) > 72 || !await bcrypt.compare(req.body.password, user.passwordHash) || !await consumeFactor(user, req.body.code)) return bad(res);
+  const code = typeof req.body?.code === "string" ? req.body.code.replace(/\s/g, "") : req.body?.code;
+  if (!user.mfaEnabled || typeof req.body?.password !== "string" || Buffer.byteLength(req.body.password) > 72 || !await bcrypt.compare(req.body.password, user.passwordHash) || !await consumeFactor(user, code)) return badSettingsFactor(res);
   const updated = await User.findOneAndUpdate({ _id: user._id, sessionVersion: user.sessionVersion || 0 }, { $set: { mfaEnabled: false, mfaLastCounter: -1 }, $unset: { mfaSecret: 1, mfaRecoveryHashes: 1 }, $inc: { sessionVersion: 1 } }, { new: true }).select("+sessionVersion");
   if (!updated) return bad(res);
   setSession(res, updated); res.json({ enabled: false });

@@ -1,6 +1,28 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
 beforeEach(() => { vi.resetModules(); localStorage.clear(); });
+it("shows rejected MFA disable factors without expiring the signed-in session", async () => {
+  const { default: api } = await import("../api");
+  const expired = vi.fn();
+  window.addEventListener("postdate:session-expired", expired);
+  api.defaults.adapter = async config => { throw { config, response: { status: 403 } }; };
+  try {
+    await expect(api.post("/auth/mfa/disable", { password: "wrong", code: "000000" })).rejects.toBeTruthy();
+    expect(expired).not.toHaveBeenCalled();
+  } finally { window.removeEventListener("postdate:session-expired", expired); }
+});
+it("keeps rejected MFA challenges in the form but expires rejected protected sessions", async () => {
+  const { default: api } = await import("../api");
+  const expired = vi.fn();
+  window.addEventListener("postdate:session-expired", expired);
+  api.defaults.adapter = async config => { throw { config, response: { status: 401 } }; };
+  try {
+    await expect(api.post("/auth/mfa/verify", { code: "000000" })).rejects.toBeTruthy();
+    expect(expired).not.toHaveBeenCalled();
+    await expect(api.get("/auth/session")).rejects.toBeTruthy();
+    expect(expired).toHaveBeenCalledTimes(1);
+  } finally { window.removeEventListener("postdate:session-expired", expired); }
+});
 it("removes old local tokens, uses cookies, and adds the write-protection header", async () => {
   localStorage.setItem("token", "old-sensitive-token");
   const { default: api } = await import("../api");

@@ -1,0 +1,23 @@
+.mfa-setup-steps {
+  margin: 16px 0;
+  padding-left: 22px;
+  font: 14px/1.8 Arial, sans-serif;
+  color: #795b55;
+}
+.mfa-setup-steps li + li { margin-top: 8px; }
+.mfa-qr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 224px;
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #e8ded4;
+  border-radius: 16px;
+  background: #fff;
+}
+.mfa-qr img { display: block; width: 224px; height: auto; max-width: 100%; }
+.mfa-manual { margin: 16px 0 24px; font: 13px/1.7 Arial, sans-serif; color: #795b55; }
+.mfa-manual summary { cursor: pointer; color: #84364d; padding: 8px 0; }
+.mfa-manual summary:focus-visible { outline: 2px solid #84364d; outline-offset: 3px; }
+.mfa-manual .mfa-secret { display: block; overflow-wrap: anywhere; padding: 14px; border-radius: 8px; background: #f3e3e4; color: #71354a; user-select: all; }

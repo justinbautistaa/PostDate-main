@@ -123,7 +123,6 @@ export default function LoginForm({ defaultEmail = "", notice = "", onSubmit, on
       />
 
       <div className="auth-hint-row">
-        <Link className="auth-link" to="/appeal">Account suspended? Submit an appeal</Link>
         <button type="button" className="auth-link" onClick={handleForgot} disabled={busy}>
           Forgot password?
         </button>
@@ -140,6 +139,7 @@ export default function LoginForm({ defaultEmail = "", notice = "", onSubmit, on
       <button type="submit" className="auth-pill lf-pill" disabled={busy}>
         Log-in
       </button>
+      <p className="login-appeal">Account suspended? <Link to="/appeal">Submit an appeal</Link></p>
     </form>
   );
 }
