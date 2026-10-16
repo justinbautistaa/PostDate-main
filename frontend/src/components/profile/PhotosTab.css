@@ -1,0 +1,21 @@
+.photos { display:flex; flex-direction:column; gap:16px; }
+.photos-guidance { margin:-8px 0 4px; color:#806b62; font:12px/1.6 Arial,sans-serif; }
+.photos-error { margin:0; padding:12px 16px; border-radius:10px; background:#f5e5e8; color:#71354a; font:14px/1.6 Arial,sans-serif; }
+.photos-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; align-items:start; }
+.photos-tile { min-width:0; overflow:hidden; border:1px solid #e3d3c9; border-radius:14px; background:#fffdfa; }
+.photos-tile-avatar { border-color:#84364d; box-shadow:0 0 0 1px #84364d; }
+.photos-image { aspect-ratio:4/5; overflow:hidden; background:#f3eae2; }
+.photos-image img { display:block; width:100%; height:100%; object-fit:cover; object-position:center; }
+.photos-missing { height:100%; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; color:#806b62; font:13px/1.6 Arial,sans-serif; }
+.photos-missing strong { color:#71354a; font-weight:600; }
+.photos-tile-actions { display:flex; flex-wrap:wrap; gap:8px; padding:12px; min-height:62px; }
+.photos-tile-btn { background:#fcf7f0; color:#71354a; border:1px solid #dcc5ba; border-radius:8px; padding:8px 10px; cursor:pointer; font:600 12px/1.5 Arial,sans-serif; }
+.photos-tile-btn:hover:not(:disabled) { background:#f3e3e4; }
+.photos-tile-btn:disabled { opacity:.5; cursor:default; }
+.photos-tile-badge { display:flex; align-items:center; min-height:62px; padding:12px 16px; color:#84364d; font:600 13px/1.5 Arial,sans-serif; }
+.profile .photos-add { align-self:flex-start; border:1px solid #84364d; border-radius:999px; padding:12px 22px; background:#84364d; color:#fff; font:600 14px/1.5 Arial,sans-serif; cursor:pointer; }
+.photos-add:disabled { opacity:.6; cursor:default; }
+.photos button:focus-visible { outline:2px solid #84364d; outline-offset:3px; }
+.photos-empty { margin:0; padding:32px; border:1px dashed #d8bfb2; border-radius:14px; color:#806b62; text-align:center; font:14px/1.7 Arial,sans-serif; }
+@media(max-width:1050px) { .photos-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:420px) { .photos-grid { gap:12px; } .photos-tile-actions { padding:8px; } .photos-tile-btn { padding:7px; font-size:11px; } }
