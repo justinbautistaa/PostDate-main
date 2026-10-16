@@ -29,5 +29,9 @@ coverage/
 
 .npm-cache/
 backend/.cache/
+# Generated runtime and test caches
+node-compile-cache/
+backend/jest/
+backend/mongo-mem-*/
 *.encrypted
 backups/
