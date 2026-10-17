@@ -13,6 +13,7 @@ async function run() {
   const health = await check("/healthz", 200);
   if ((await health.json()).status !== "ready") throw new Error("The service is not ready");
   const home = await check("/", 200);
+  if (!home.headers.get("cache-control")?.includes("no-cache")) throw new Error("HTML must revalidate after deployments");
   if (!home.headers.get("content-security-policy")?.includes("script-src 'self'") || !home.headers.has("strict-transport-security")) {
     throw new Error("Missing production security headers");
   }

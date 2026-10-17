@@ -53,7 +53,10 @@ function createApp() {
   if (process.env.NODE_ENV === "production" || process.env.SERVE_FRONTEND === "true") {
     const frontend = path.join(__dirname, "../frontend/dist");
     app.use(express.static(frontend, { dotfiles: "deny", index: false }));
-    app.get(["/", "/about", "/privacy", "/login", "/signup", "/appeal", "/profile", "/discover", "/dashboard", "/user", "/messages", "/my-reports", "/admin", "/staff", "/moderator"], (req, res) => res.sendFile(path.join(frontend, "index.html")));
+    app.get(["/", "/about", "/privacy", "/login", "/signup", "/appeal", "/profile", "/discover", "/dashboard", "/user", "/messages", "/my-reports", "/admin", "/staff", "/moderator"], (req, res) => {
+      res.set("Cache-Control", "no-cache");
+      res.sendFile(path.join(frontend, "index.html"));
+    });
   } else {
     app.get("/", (req, res) => res.send("PostDate API is running"));
   }

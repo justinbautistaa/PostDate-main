@@ -4,7 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 import { restoreSession } from "./auth";
+import { installPreloadRecovery } from "./services/preloadRecovery";
 
+installPreloadRecovery();
 await restoreSession();
 
 createRoot(document.getElementById("root")).render(
