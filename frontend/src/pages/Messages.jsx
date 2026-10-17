@@ -6,7 +6,7 @@ import ReportForm from "../components/ReportForm";
 import MatchedProfile from "../components/MatchedProfile";
 import ReviewForm from "../components/ReviewForm";
 import api from "../api";
-import { getConversations, getMessages, sendMessage } from "../services/chatApi";
+import { getConversations, getConversation, getMessages, sendMessage } from "../services/chatApi";
 import { toPhotoUrl } from "../services/postdateApi";
 import "./Workspace.css";
 import "./Messages.css";
@@ -119,8 +119,21 @@ export default function Messages() {
   const [items, setItems] = useState([]), [cursor, setCursor] = useState(null);
   const [loading, setLoading] = useState(true), [error, setError] = useState("");
   const [moreLoading, setMoreLoading] = useState(false);
+  const [selectedLoading, setSelectedLoading] = useState(false), [selectedError, setSelectedError] = useState("");
+  const [selectedRetry, setSelectedRetry] = useState(0);
   const firstPageIds = useRef(new Set()), paged = useRef(false);
   const person = items.find(item => item.id === selected);
+  const personId = person?.id;
+  useEffect(() => {
+    let active = true;
+    setSelectedError("");
+    if (!selected || personId || loading) { setSelectedLoading(false); return; }
+    setSelectedLoading(true);
+    getConversation(selected).then(row => { if (active) setItems(previous => previous.some(item => item.id === row.id) ? previous : [row, ...previous]); })
+      .catch(err => { if (active) setSelectedError(err?.response?.status === 404 ? "This conversation is no longer available." : "This conversation couldn’t load. Please try again."); })
+      .finally(() => { if (active) setSelectedLoading(false); });
+    return () => { active = false; };
+  }, [selected, personId, loading, selectedRetry]);
   const refresh = useCallback(async () => {
     try {
       const data = await getConversations();
@@ -147,13 +160,15 @@ export default function Messages() {
     <div className="workspace-title"><div><p className="eyebrow">FROM A MATCH TO SOMETHING MORE</p><h1>Your conversations.</h1><p className="muted">A good date can start with a great conversation.</p></div><Link className="outline-button" to="/discover">Find dates ↗</Link></div>
     <div className={`chat-layout${person ? " chat-is-open" : ""}`}>
       <aside className="chat-list"><header><h2>Your matches</h2><span>{items.length}</span></header>
+        {selectedLoading && <p className="chat-list-note" role="status">Opening your selected conversation…</p>}
+        {selectedError && <div className="chat-error" role="alert">{selectedError}<button onClick={() => setSelectedRetry(v => v + 1)}>Retry selected conversation</button></div>}
         {loading && <p className="chat-list-note" role="status">Finding your conversations…</p>}
         {error && <div className="chat-error" role="alert">{error}<button onClick={refresh}>Try again</button></div>}
-        {!loading && !error && !items.length && <div className="chat-list-note"><span className="chat-empty-symbol" aria-hidden="true">♡</span><h3>Room for a new hello.</h3><p>When you both like each other, your match appears here and you can start chatting.</p><Link className="outline-button" to="/discover">Meet someone new ↗</Link></div>}
+        {!loading && !selected && !error && !items.length && <div className="chat-list-note"><span className="chat-empty-symbol" aria-hidden="true">♡</span><h3>Room for a new hello.</h3><p>When you both like each other, your match appears here and you can start chatting.</p><Link className="outline-button" to="/discover">Meet someone new ↗</Link></div>}
         <nav aria-label="Conversations">{items.map(item => <button key={item.id} aria-label={`Chat with ${item.name}`} aria-current={item.id === selected ? "page" : undefined} onClick={() => setParams({ match: item.id })}><Avatar person={item} /><span><b>{item.name}</b><small>{item.lastMessage || "You matched! Say hello."}</small></span><span aria-hidden="true">↗</span></button>)}</nav>
         {cursor && <button className="chat-earlier" disabled={moreLoading} onClick={more}>{moreLoading ? "Loading…" : "More matches ↓"}</button>}
       </aside>
-      {person ? <Thread key={person.id} person={person} onSent={refresh} onBack={() => setParams({})} /> : <section className="chat-welcome"><div className="chat-stamp" aria-hidden="true">♡</div><p className="eyebrow">A LETTER TO SOMEONE NEW</p><h2>A match is just<br />the beginning.</h2><p>{selected ? "Choose a conversation from your matches. If it is on another page, use More matches to find it." : "Pick a match to say hello. Be curious, be yourself, and see where the conversation goes."}</p><span className="chat-safety">Your boundaries matter. Share only what feels comfortable.</span></section>}
+      {person ? <Thread key={person.id} person={person} onSent={refresh} onBack={() => setParams({})} /> : <section className="chat-welcome"><div className="chat-stamp" aria-hidden="true">♡</div><p className="eyebrow">A LETTER TO SOMEONE NEW</p><h2>A match is just<br />the beginning.</h2><p>{selected ? (selectedError || (selectedLoading ? "Opening your selected conversation…" : "Choose a conversation from your matches.")) : "Pick a match to say hello. Be curious, be yourself, and see where the conversation goes."}</p><span className="chat-safety">Your boundaries matter. Share only what feels comfortable.</span></section>}
     </div>
   </main></div>;
 }

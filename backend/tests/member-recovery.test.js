@@ -56,12 +56,17 @@ test("connection notices are private, survive read state, replace likes with mat
   await call("post", "/chats/connections/read", bob).send({ through: "2999-01-01" }).expect(400);
   const result = await call("post", "/discover/like", bob).send({ profileId: String(alice._id) }).expect(200);
   expect(result.body.matchId).toBeTruthy();
+  const summary = await call("get", `/chats/${result.body.matchId}/summary`, bob).expect(200);
+  expect(summary.body).toMatchObject({ id: result.body.matchId, name: "Alice" });
+  expect(summary.body.email).toBeUndefined();
+  await call("get", `/chats/${result.body.matchId}/summary`, cara).expect(404);
   notices = (await call("get", "/chats/connections", bob)).body;
   expect(notices.rows).toHaveLength(1);
   expect(notices.rows[0]).toMatchObject({ kind: "match", name: "Alice", unread: true });
   expect((await call("get", "/chats/connections", alice)).body.rows[0].kind).toBe("match");
   const match = await Match.findOne({ status: "active" });
   await call("post", `/chats/${match._id}/block`, alice).send({}).expect(204);
+  await call("get", `/chats/${match._id}/summary`, bob).expect(404);
   await call("get", `/discover/${alice._id}`, bob).expect(404);
   expect((await call("get", "/chats/connections", bob)).body.rows).toHaveLength(0);
 });

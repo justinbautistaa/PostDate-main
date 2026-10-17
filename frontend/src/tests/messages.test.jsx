@@ -8,12 +8,25 @@ import { setSession } from "../auth";
 import * as chat from "../services/chatApi";
 import api from "../api";
 vi.mock("../api", () => ({ default: { post: vi.fn() } }));
-vi.mock("../services/chatApi", () => ({ getConversations: vi.fn(), getMessages: vi.fn(), sendMessage: vi.fn(), getMatchedProfile: vi.fn() }));
+vi.mock("../services/chatApi", () => ({ getConversations: vi.fn(), getConversation: vi.fn(), getMessages: vi.fn(), sendMessage: vi.fn(), getMatchedProfile: vi.fn() }));
 const match = { id: "match-a", name: "Alex", avatarPath: null, lastMessage: "Hello!" };
 beforeEach(() => {
   vi.resetAllMocks(); setSession({ userId: "me", role: "user" });
   chat.getConversations.mockResolvedValue({ conversations: [match], nextCursor: null });
   chat.getMessages.mockResolvedValue({ messages: [], nextCursor: null });
+  chat.getConversation.mockRejectedValue({ response: { status: 404 } });
+});
+it("opens an older conversation directly from a notification without paging through matches", async () => {
+  chat.getConversation.mockResolvedValue({ ...match, id: "older-match", name: "Older match" });
+  render(<MemoryRouter initialEntries={["/messages?match=older-match"]}><Messages /></MemoryRouter>);
+  expect(await screen.findByRole("textbox", { name: "Message to Older match" })).toBeTruthy();
+  expect(chat.getConversation).toHaveBeenCalledWith("older-match");
+  expect(chat.getMessages).toHaveBeenCalledWith("older-match");
+});
+it("explains unavailable notification targets without displaying another conversation", async () => {
+  render(<MemoryRouter initialEntries={["/messages?match=missing-match"]}><Messages /></MemoryRouter>);
+  expect((await screen.findByRole("alert")).textContent).toContain("no longer available");
+  expect(screen.queryByRole("textbox", { name: "Message to Alex" })).toBeNull();
 });
 it.each([["user", null], ["moderator", "Staff"], ["admin", "Admin"]])("%s gets the right navigation", (role, workspace) => {
   setSession({ userId: "me", role });

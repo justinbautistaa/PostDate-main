@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ageFromBirthdate } from "../../utils/validation";
 
 /**
  * EditProfileModal
@@ -49,18 +50,6 @@ const BIO_MAX = 1000; // 🎛️ keep in sync with Profile.bio maxlength in back
 const NAME_MAX = 50; // 🎛️ keep in sync with Profile.profileName maxlength
 
 /** "YYYY-MM-DD" -> whole years old, for the same 18+ check WhoAreYouForm does at sign-up. */
-function calculateAge(isoDate) {
-  if (!isoDate) return 0;
-  const dob = new Date(isoDate);
-  if (Number.isNaN(dob.getTime())) return 0;
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const hadBirthdayThisYear =
-    today.getMonth() > dob.getMonth() ||
-    (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
-  if (!hadBirthdayThisYear) age -= 1;
-  return age;
-}
 
 const emptyForm = { displayName: "", bio: "", gender: "", birthdate: "", city: "", country: "" };
 
@@ -69,6 +58,21 @@ export default function EditProfileModal({ open, profile = {}, onClose, onSave }
   const [touched, setTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const dialog = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    dialog.current?.querySelector("input")?.focus();
+    return () => previous?.focus?.();
+  }, [open]);
+  function trapFocus(event) {
+    if (event.key !== "Tab") return;
+    const controls = [...dialog.current.querySelectorAll("*")].filter(element =>
+      ["BUTTON", "INPUT", "TEXTAREA", "SELECT"].includes(element.tagName) ? !element.disabled : element.tagName === "A" && element.hasAttribute("href"));
+    const first = controls[0], last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+  }
 
   // Reload the form from the current profile every time the pop-up opens, so
   // a cancelled edit never leaves stale text behind the next time it opens.
@@ -108,7 +112,7 @@ export default function EditProfileModal({ open, profile = {}, onClose, onSave }
 
   const problems = {
     gender: !values.gender,
-    birthdate: !values.birthdate.trim() || calculateAge(values.birthdate) < MIN_AGE,
+    birthdate: !Number.isFinite(ageFromBirthdate(values.birthdate)) || ageFromBirthdate(values.birthdate) < MIN_AGE,
   };
   const isValid = !Object.values(problems).some(Boolean);
   const invalid = (field) => (touched && problems[field] ? "epmodal-invalid" : "");
@@ -381,7 +385,7 @@ export default function EditProfileModal({ open, profile = {}, onClose, onSave }
         }
       `}</style>
 
-      <div className="epmodal" role="dialog" aria-modal="true" aria-labelledby="epmodal-title">
+      <div ref={dialog} onKeyDown={trapFocus} className="epmodal" role="dialog" aria-modal="true" aria-labelledby="epmodal-title">
         <div className="epmodal-head">
           <h2 className="epmodal-title" id="epmodal-title">
             Edit profile
@@ -409,7 +413,6 @@ export default function EditProfileModal({ open, profile = {}, onClose, onSave }
                 maxLength={NAME_MAX}
                 placeholder="Shown on your profile instead of your name"
                 autoComplete="off"
-                autoFocus
                 value={values.displayName}
                 onChange={update("displayName")}
               />

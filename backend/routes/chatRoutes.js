@@ -96,6 +96,15 @@ router.get("/chats", asyncHandler(async (req, res) => {
       matchedAt: m.createdAt, lastMessage: last?.text || "", lastMessageAt: last?.sentAt || null };
   }), nextCursor: matches.length > 20 ? String(page[page.length - 1]._id) : null });
 }));
+router.get("/chats/:id/summary", asyncHandler(conversation), asyncHandler(async (req, res) => {
+  const [user, profile, last] = await Promise.all([
+    User.findById(req.chat.partnerId).select("firstName").lean(),
+    Profile.findOne({ userId: req.chat.partnerId }).select("profileName avatar").lean(),
+    Message.findOne({ matchId: req.chat.match._id }).sort({ _id: -1 }).select("message createdAt").lean(),
+  ]);
+  res.json({ id: String(req.chat.match._id), name: profile?.profileName || user.firstName || "Your match", avatarPath: profile?.avatar || null,
+    matchedAt: req.chat.match.createdAt, lastMessage: last?.message || "", lastMessageAt: last?.createdAt || null });
+}));
 router.get("/chats/:id/messages", asyncHandler(conversation), asyncHandler(async (req, res) => {
   const { before } = req.query;
   if (before && !isObjectIdString(before)) return res.status(400).json({ message: "Invalid message page" });
