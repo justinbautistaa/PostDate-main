@@ -14,13 +14,15 @@ export default function ReportForm({ targetType, targetId, name, onClose }) {
     const previous = document.activeElement;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    dialogRef.current?.querySelector("select")?.focus();
     return () => { document.body.style.overflow = overflow; previous?.focus?.(); };
   }, []);
   useEffect(() => { if (sent) dialogRef.current?.querySelector("button")?.focus(); }, [sent]);
   function onKeyDown(event) {
     if (event.key === "Escape") { event.stopPropagation(); if (!pending.current) onClose?.(); }
     if (event.key !== "Tab") return;
-    const items = [...dialogRef.current.querySelectorAll("select,textarea,button:not(:disabled)")];
+    const items = [...dialogRef.current.querySelectorAll("*")].filter(element => ["SELECT", "TEXTAREA", "BUTTON"].includes(element.tagName) && !element.disabled);
+    if (!items.length) { event.preventDefault(); return; }
     const first = items[0], last = items[items.length - 1];
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
     if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
@@ -36,8 +38,8 @@ export default function ReportForm({ targetType, targetId, name, onClose }) {
     <h2 id="report-title">{sent ? "Report submitted" : `Report ${name || (targetType === "message" ? "this message" : "this profile")}`}</h2>
     {sent ? <><p role="status">Your report was sent to the admin and staff team for review. Thank you for helping keep the community safe.</p><p>You can track its status in My reports in the member menu.</p><button onClick={onClose}>Done</button></> : <form onSubmit={submit}>
       <p>Choose a reason and share any details that will help the team investigate.</p>
-      <label>Reason<select required autoFocus value={reason} onChange={e => setReason(e.target.value)}><option value="">Choose a reason</option>{REASONS.map(value => <option key={value}>{value}</option>)}</select></label>
-      <label>Details (optional)<textarea maxLength={2000} rows={4} value={description} onChange={e => setDescription(e.target.value)} /></label>
+      <label>Reason<select required disabled={busy} value={reason} onChange={e => setReason(e.target.value)}><option value="">Choose a reason</option>{REASONS.map(value => <option key={value}>{value}</option>)}</select></label>
+      <label>Details (optional)<textarea disabled={busy} maxLength={2000} rows={4} value={description} onChange={e => setDescription(e.target.value)} /></label>
       {error && <p role="alert">{error}</p>}
       <div className="safety-actions"><button type="button" disabled={busy} onClick={onClose}>Cancel</button><button disabled={busy}>{busy ? "Sending…" : "Submit report"}</button></div>
     </form>}

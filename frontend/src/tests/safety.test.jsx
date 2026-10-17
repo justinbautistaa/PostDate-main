@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
@@ -8,6 +8,15 @@ import ReportForm from "../components/ReportForm";
 import Appeal from "../pages/Appeal";
 vi.mock("../api", () => ({ default: { post: vi.fn() } }));
 beforeEach(() => vi.resetAllMocks());
+it("returns keyboard focus after closing the report dialog", () => {
+  function Harness() { const [open, setOpen] = useState(false); return <><button onClick={() => setOpen(true)}>Report profile</button>{open && <ReportForm targetType="user" targetId="member1" onClose={() => setOpen(false)} />}</>; }
+  render(<Harness />);
+  const opener = screen.getByRole("button", { name: "Report profile" });
+  opener.focus(); fireEvent.click(opener);
+  expect(document.activeElement).toBe(screen.getByLabelText("Reason"));
+  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+  expect(screen.queryByRole("dialog")).toBeNull(); expect(document.activeElement).toBe(opener);
+});
 it("reports the opened profile and shows confirmation only after the server accepts it", async () => {
   api.post.mockResolvedValue({ data: { id: "report1" } });
   render(<ProfileModal profile={{ id: "member1", name: "Alex", age: 25, gender: "Woman" }} />);

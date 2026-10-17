@@ -84,6 +84,18 @@ test("like notifications use profile names and disappear after hiding a profile 
   await call("post", "/discover/pass", bob).send({ profileId: String(alice._id) }).expect(200);
   expect((await call("get", "/chats/connections", bob)).body.rows).toHaveLength(0);
 });
+test("a block revokes chat access and unblocking cannot restore the ended conversation", async () => {
+  const alice = await member("Alice"), bob = await member("Bob");
+  const match = await Match.create({ user1: alice._id, user2: bob._id, status: "active" });
+  await call("post", `/chats/${match._id}/block`, alice).send({}).expect(204);
+  await call("get", `/chats/${match._id}/messages`, bob).expect(404);
+  await call("post", `/chats/${match._id}/messages`, bob).send({ text: "Hello" }).expect(404);
+  await call("post", `/chats/${match._id}/unblock`, bob).send({}).expect(404);
+  await call("post", `/chats/${match._id}/unblock`, alice).send({}).expect(204);
+  expect((await Match.findById(match._id)).status).toBe("unmatched");
+  await call("get", `/chats/${match._id}/summary`, alice).expect(404);
+  await call("post", "/discover/like", alice).send({ profileId: String(bob._id) }).expect(404);
+});
 test("recovery changes password once, stores only a digest, and revokes previous sessions", async () => {
   const user = await member("Alice");
   const token = await recovery(user);

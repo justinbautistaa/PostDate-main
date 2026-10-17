@@ -1,0 +1,32 @@
+import React from "react";
+import { beforeEach, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import PrivacySettings from "../components/profile/PrivacySettings";
+import BlockedPeople from "../components/profile/BlockedPeople";
+import api from "../api";
+vi.mock("../api", () => ({ default: { get: vi.fn(), put: vi.fn(), post: vi.fn() } }));
+beforeEach(() => vi.resetAllMocks());
+it("retries privacy loading and retains the saved visibility when an update fails", async () => {
+  api.get.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ data: { discoverable: true, consentAt: "2026-10-16", policyVersion: "2026-10-16" } });
+  api.put.mockRejectedValue(new Error("offline"));
+  render(<MemoryRouter><PrivacySettings /></MemoryRouter>);
+  fireEvent.click(await screen.findByRole("button", { name: "Retry privacy settings" }));
+  const checkbox = await screen.findByRole("checkbox", { name: "Show my profile in discovery" });
+  fireEvent.click(checkbox);
+  expect((await screen.findByRole("alert")).textContent).toContain("previous choice is unchanged");
+  expect(checkbox.checked).toBe(true);
+  expect(screen.queryByText("Your profile is hidden from new discovery.")).toBeNull();
+});
+it("keeps failed unblock targets and clears the stale error after retry succeeds", async () => {
+  api.get.mockResolvedValue({ data: [{ id: "match-a", name: "Alex" }] });
+  api.post.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({});
+  render(<BlockedPeople />);
+  fireEvent.click(await screen.findByRole("button", { name: "Unblock" }));
+  await screen.findByRole("alert");
+  expect(screen.getByText("Alex")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Unblock" }));
+  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+  await screen.findByText("Alex was unblocked.");
+  expect(screen.queryByRole("button", { name: "Unblock" })).toBeNull();
+});
