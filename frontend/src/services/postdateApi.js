@@ -185,6 +185,10 @@ export async function getDiscoverProfiles(params = {}) {
 export async function likeProfile(profileId) {
   return (await api.post("/discover/like", { profileId })).data;
 }
+export async function getDiscoverProfile(profileId) {
+  const { data } = await api.get(`/discover/${encodeURIComponent(profileId)}`);
+  return { ...data, photoUrl: toPhotoUrl(data.photoPath) };
+}
 export async function passProfile(profileId) {
   return (await api.post("/discover/pass", { profileId })).data;
 }

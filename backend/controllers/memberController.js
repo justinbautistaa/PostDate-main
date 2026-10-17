@@ -103,12 +103,28 @@ async function recordSwipe(req, res, action) {
   const [user1, user2] = [req.user.userId, id].sort();
   const pairKey = `${user1}:${user2}`;
   const existing = await Match.findOne({ $or: [{ user1, user2 }, { user1: user2, user2: user1 }] });
-  if (existing) return res.json({ ok: true, matched: existing.status === "active" });
+  if (existing) return res.json({ ok: true, matched: existing.status === "active", ...(existing.status === "active" ? { matchId: String(existing._id) } : {}) });
   try { await Match.create({ user1, user2, pairKey }); }
   catch (err) { if (err.code !== 11000) throw err; }
   require("../utils/chatEvents").emit(id);
   require("../utils/chatEvents").emit(req.user.userId);
-  return res.json({ ok: true, matched: true });
+  const match = await Match.findOne({ pairKey });
+  return res.json({ ok: true, matched: true, matchId: String(match._id) });
+}
+
+async function discoverProfile(req, res) {
+  const id = req.params.id;
+  const unavailable = () => res.status(404).json({ message: "This profile is no longer available." });
+  if (!isObjectIdString(id) || id.toLowerCase() === req.user.userId) return unavailable();
+  const pair = { $or: [{ user1: req.user.userId, user2: id }, { user1: id, user2: req.user.userId }] };
+  if (await Match.exists({ ...pair, status: { $in: ["blocked", "unmatched"] } }) ||
+      await Swipe.exists({ fromUserId: req.user.userId, toUserId: id, action: "pass" })) return unavailable();
+  const [user, profile] = await Promise.all([
+    User.findOne({ _id: id, role: "user", isActive: true, isVerified: true, emailVerifiedAt: { $ne: null }, deletionRequestedAt: null }).select("firstName").lean(),
+    Profile.findOne({ userId: id, discoverable: { $ne: false } }).select("profileName dateOfBirth gender avatar bio").lean(),
+  ]);
+  if (!user || !profile || calculateAge(profile.dateOfBirth) < 18) return unavailable();
+  return res.json({ id: String(user._id), name: profile.profileName || user.firstName, age: calculateAge(profile.dateOfBirth), gender: GENDER_LABELS[profile.gender] || profile.gender, photoPath: profile.avatar || null, bio: profile.bio || "" });
 }
 
 async function matchHistory(req, res) {
@@ -147,4 +163,4 @@ async function matchHistory(req, res) {
   });
 }
 
-module.exports = { updateDetails, discover, recordSwipe, matchHistory, GENDERS };
+module.exports = { updateDetails, discover, discoverProfile, recordSwipe, matchHistory, GENDERS };

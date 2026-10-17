@@ -12,7 +12,7 @@ module.exports = async function connectionNotices(userId) {
   const partner = row => String(row.user1) === userId ? String(row.user2) : String(row.user1);
   const pairs = new Map(matches.map(row => [partner(row), row]));
   const candidates = likes.filter(row => !pairs.has(String(row.fromUserId))).map(row => ({
-    id: `like:${row._id}`, kind: "like", partnerId: String(row.fromUserId), at: row.createdAt, href: "/discover",
+    id: `like:${row._id}`, kind: "like", partnerId: String(row.fromUserId), at: row.createdAt, href: `/discover?profile=${row.fromUserId}`,
   })).concat(matches.filter(row => row.status === "active").map(row => ({
     id: `match:${row._id}`, kind: "match", partnerId: partner(row), at: row.createdAt, href: `/messages?match=${row._id}`,
   })));

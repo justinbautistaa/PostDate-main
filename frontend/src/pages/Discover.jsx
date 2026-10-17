@@ -18,6 +18,7 @@
  * component's confidence note for how that maps to the Figma.
  */
 import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import AppNav from "../components/AppNav";
 import PageBanner from "../components/discover/PageBanner";
@@ -26,11 +27,16 @@ import ProfileCard from "../components/discover/ProfileCard";
 import ProfileModal from "../components/discover/ProfileModal";
 import DiscoverFooter from "../components/discover/DiscoverFooter";
 
-import { getDiscoverProfiles, likeProfile, passProfile } from "../services/postdateApi";
+import { getDiscoverProfiles, getDiscoverProfile, likeProfile, passProfile } from "../services/postdateApi";
 
 const DEFAULT_FILTERS = { gender: "Any", minAge: 18, maxAge: 60 };
 
 export default function Discover() {
+  const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
+  const requestedProfile = params.get("profile");
+  const [profileError, setProfileError] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -41,6 +47,20 @@ export default function Discover() {
   const [selected, setSelected] = useState(null);
   const [retry, setRetry] = useState(0);
   const generation = useRef(0);
+  useEffect(() => {
+    let cancelled = false;
+    setProfileError("");
+    if (!requestedProfile) { setProfileLoading(false); setSelected(null); return; }
+    setSelected(null); setProfileLoading(true);
+    getDiscoverProfile(requestedProfile).then(profile => { if (!cancelled) setSelected(profile); })
+      .catch(() => { if (!cancelled) setProfileError("This profile is no longer available. It may have been hidden, or you’ve already passed on it."); })
+      .finally(() => { if (!cancelled) setProfileLoading(false); });
+    return () => { cancelled = true; };
+  }, [requestedProfile]);
+  function closeProfile() {
+    setSelected(null);
+    if (requestedProfile) setParams(previous => { const next = new URLSearchParams(previous); next.delete("profile"); return next; }, { replace: true });
+  }
 
   /* 🔌 BACKEND: GET /api/discover — see services/postdateApi.js.
      Re-fetches whenever the search text or filters change. Once the real
@@ -85,12 +105,13 @@ export default function Discover() {
     const result = await likeProfile(profile.id);
     setProfiles((items) => items.filter((item) => item.id !== profile.id));
     setNotice(result.matched ? "It's a match! Open match history to see it." : "Like saved.");
-    setSelected(null);
+    closeProfile();
+    if (result.matched && result.matchId) navigate(`/messages?match=${encodeURIComponent(result.matchId)}`);
   }
   async function handlePass(profile) {
     await passProfile(profile.id);
     setProfiles((items) => items.filter((item) => item.id !== profile.id));
-    setSelected(null);
+    closeProfile();
   }
 
   return (
@@ -148,6 +169,8 @@ export default function Discover() {
 
         {error && <div className="discover-status" role="alert">{error} <button type="button" className="outline-button" onClick={() => nextCursor ? loadMore() : setRetry(v => v + 1)}>Try again</button></div>}
         {notice && <p className="discover-status" role="status">{notice}</p>}
+        {profileLoading && <p role="status">Opening profile…</p>}
+        {profileError && <p role="alert">{profileError}</p>}
         {loading && <p className="discover-status">Finding profiles…</p>}
 
         {!loading && !error && visible.length === 0 && (
@@ -175,7 +198,7 @@ export default function Discover() {
       {selected && (
         <ProfileModal
           profile={selected}
-          onClose={() => setSelected(null)}
+          onClose={closeProfile}
           onLike={handleLike}
           onPass={handlePass}
         />
