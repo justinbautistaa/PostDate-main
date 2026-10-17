@@ -38,6 +38,26 @@ beforeAll(async () => {
   await Promise.all([User.init(), Profile.init(), Swipe.init(), Match.init(), Counter.init()]);
   app = require("../server").createApp();
 });
+test("connection notices are private, survive read state, replace likes with matches and respect blocks", async () => {
+  const alice = await member("Alice"), bob = await member("Bob"), cara = await member("Cara");
+  await call("get", "/chats/connections").expect(401);
+  await call("post", "/discover/like", alice).send({ profileId: String(bob._id) }).expect(200);
+  let notices = (await call("get", "/chats/connections", bob).expect(200)).body;
+  expect(notices.total).toBe(1);
+  expect(notices.rows[0]).toMatchObject({ kind: "like", name: "Alice", unread: true });
+  expect((await call("get", "/chats/connections", cara)).body.total).toBe(0);
+  await call("post", "/chats/connections/read", bob).send({ through: notices.through }).expect(204);
+  expect((await call("get", "/chats/connections", bob)).body.total).toBe(0);
+  await call("post", "/chats/connections/read", bob).send({ through: "2999-01-01" }).expect(400);
+  await call("post", "/discover/like", bob).send({ profileId: String(alice._id) }).expect(200);
+  notices = (await call("get", "/chats/connections", bob)).body;
+  expect(notices.rows).toHaveLength(1);
+  expect(notices.rows[0]).toMatchObject({ kind: "match", name: "Alice", unread: true });
+  expect((await call("get", "/chats/connections", alice)).body.rows[0].kind).toBe("match");
+  const match = await Match.findOne({ status: "active" });
+  await call("post", `/chats/${match._id}/block`, alice).send({}).expect(204);
+  expect((await call("get", "/chats/connections", bob)).body.rows).toHaveLength(0);
+});
 afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); });
 afterEach(async () => { await Promise.all(Object.values(mongoose.models).map((model) => model.deleteMany({}))); jest.clearAllMocks(); });
 

@@ -98,6 +98,7 @@ async function recordSwipe(req, res, action) {
     if (err.code !== 11000) throw err;
     vote = await Swipe.findOne({ fromUserId: req.user.userId, toUserId: id });
   }
+  if (vote.action === "like") require("../utils/chatEvents").emit(id);
   if (vote.action !== "like" || !await Swipe.exists({ fromUserId: id, toUserId: req.user.userId, action: "like" })) return res.json({ ok: true, matched: false });
   const [user1, user2] = [req.user.userId, id].sort();
   const pairKey = `${user1}:${user2}`;
@@ -105,6 +106,8 @@ async function recordSwipe(req, res, action) {
   if (existing) return res.json({ ok: true, matched: existing.status === "active" });
   try { await Match.create({ user1, user2, pairKey }); }
   catch (err) { if (err.code !== 11000) throw err; }
+  require("../utils/chatEvents").emit(id);
+  require("../utils/chatEvents").emit(req.user.userId);
   return res.json({ ok: true, matched: true });
 }
 

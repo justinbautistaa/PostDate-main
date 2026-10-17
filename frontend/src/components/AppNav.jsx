@@ -14,6 +14,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Wordmark from "./Wordmark";
 import MatchHistory from "./MatchHistory";
 import MessageNotifications from "./MessageNotifications";
+import ConnectionNotifications from "./ConnectionNotifications";
 import ReportUpdates from "./ReportUpdates";
 import "../pages/MemberUI.css";
 import "./AppNav.css";
@@ -122,6 +123,7 @@ export default function AppNav({ links }) {
         <div className="appnav-tools">
         <MatchHistory />
         <MessageNotifications />
+        {role === "user" && <ConnectionNotifications />}
         </div>
         <button type="button" className="appnav-menu-toggle" ref={toggleRef} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} aria-controls="member-main-menu" onClick={() => setMenuOpen(value => !value)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">{menuOpen ? <path d="m6 6 12 12M6 18 18 6" /> : <path d="M4 6h16M4 12h16M4 18h16" />}</svg></button>
 

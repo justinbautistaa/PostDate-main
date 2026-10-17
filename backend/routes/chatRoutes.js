@@ -11,6 +11,16 @@ const Rating = require("../models/Rating");
 const chatEvents = require("../utils/chatEvents");
 
 router.use("/chats", requireAuth);
+router.get("/chats/connections", asyncHandler(async (req, res) => {
+  res.json(await require("../utils/connectionNotices")(req.user.userId));
+}));
+router.post("/chats/connections/read", asyncHandler(async (req, res) => {
+  const through = new Date(req.body?.through);
+  if (typeof req.body?.through !== "string" || !Number.isFinite(through.getTime()) || through > new Date()) return res.status(400).json({ message: "Invalid notification timestamp" });
+  await User.updateOne({ _id: req.user.userId }, { $max: { connectionNoticesReadAt: through } });
+  chatEvents.emit(req.user.userId);
+  res.sendStatus(204);
+}));
 router.get("/chats/blocked", asyncHandler(async (req, res) => {
   const rows = await Match.find({ blockedBy: req.user.userId }).sort({ updatedAt: -1 }).limit(100).lean();
   const ids = rows.map(row => String(row.user1) === req.user.userId ? row.user2 : row.user1);

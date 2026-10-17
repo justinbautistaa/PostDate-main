@@ -1,0 +1,28 @@
+import React from "react";
+import { expect, it, vi } from "vitest";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import ConnectionNotifications from "../components/ConnectionNotifications";
+import api from "../api";
+vi.mock("../api", () => ({ API_ORIGIN: "", default: { get: vi.fn(), post: vi.fn() } }));
+it("alerts on incoming likes and matches and persists read acknowledgement", async () => {
+  let notify;
+  const close = vi.fn();
+  vi.stubGlobal("EventSource", class { addEventListener(name, callback) { notify = callback; } close = close; });
+  api.get.mockResolvedValue({ data: { total: 0, rows: [], through: "2026-10-17T14:00:00.000Z" } });
+  const { unmount } = render(<MemoryRouter><ConnectionNotifications /></MemoryRouter>);
+  await act(async () => {});
+  const row = { id: "like:1", kind: "like", name: "Alex", unread: true, href: "/discover" };
+  api.get.mockResolvedValue({ data: { total: 1, rows: [row], through: "2026-10-17T14:01:00.000Z" } });
+  await act(async () => { notify(); });
+  expect(screen.getByRole("link", { name: /Alex liked you/ }).getAttribute("href")).toBe("/discover");
+  fireEvent.click(screen.getByRole("button", { name: "Like and match notifications, 1 unread" }));
+  api.post.mockResolvedValue({});
+  api.get.mockResolvedValue({ data: { total: 0, rows: [{ ...row, unread: false }], through: "2026-10-17T14:01:00.000Z" } });
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Mark all as read" })); });
+  expect(api.post).toHaveBeenCalledWith("/chats/connections/read", { through: "2026-10-17T14:01:00.000Z" });
+  api.get.mockResolvedValue({ data: { total: 1, rows: [{ ...row, id: "match:1", kind: "match", href: "/messages?match=1" }], through: "2026-10-17T14:02:00.000Z" } });
+  await act(async () => { notify(); });
+  expect(screen.getByRole("status").textContent).toContain("You and Alex matched!");
+  unmount(); expect(close).toHaveBeenCalledOnce(); vi.unstubAllGlobals();
+});

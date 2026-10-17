@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     },
 
     sessionVersion: { type: Number, default: 0, select: false },
+    connectionNoticesReadAt: { type: Date, default: null, select: false },
     deletionRequestedAt: { type: Date, default: null, select: false },
     mfaEnabled: { type: Boolean, default: false },
     mfaSecret: { type: String, select: false },
