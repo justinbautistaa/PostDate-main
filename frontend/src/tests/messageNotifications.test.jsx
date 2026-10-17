@@ -21,6 +21,7 @@ it("shows incoming messages, opens the conversation and clears the badge after r
   api.get.mockResolvedValue({ data: { total: 0, conversations: [] } });
   await act(async () => { window.dispatchEvent(new Event("postdate:messages-read")); });
   expect(await screen.findByText("You’re all caught up.")).toBeTruthy();
+  expect(screen.queryByRole("status")).toBeNull();
   unmount(); expect(close).toHaveBeenCalledOnce();
   vi.unstubAllGlobals();
 });

@@ -10,6 +10,7 @@ export default function ConnectionNotifications() {
   const [error, setError] = useState("");
   const [marking, setMarking] = useState(false);
   const previous = useRef(null), root = useRef(null);
+  const signature = useRef("");
   useEffect(() => {
     let active = true, fetching = false, again = false;
     async function sync() {
@@ -22,8 +23,14 @@ export default function ConnectionNotifications() {
           if (!active) return;
           const fresh = next.rows.find(row => row.unread && !previous.current?.has(row.id));
           if (previous.current && fresh) setNotice(fresh);
+          setNotice(current => current && next.rows.some(row => row.id === current.id && row.unread) ? current : null);
           previous.current = new Set(next.rows.map(row => row.id));
           setData(next); setError("");
+          const nextSignature = JSON.stringify(next.rows);
+          if (signature.current !== nextSignature) {
+            signature.current = nextSignature;
+            window.dispatchEvent(new Event("postdate:connections-updated"));
+          }
         } while (active && again);
       } catch { if (active) setError("Couldn’t refresh notifications. Reconnecting…"); }
       finally { fetching = false; }

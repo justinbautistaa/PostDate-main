@@ -22,6 +22,7 @@ export default function MessageNotifications() {
           if (!active) return;
           const fresh = next.conversations.find(item => !previous.current?.has(item.latestId));
           if (previous.current && fresh) setNotice(fresh);
+          setNotice(current => current && next.conversations.some(item => item.id === current.id && item.latestId === current.latestId) ? current : null);
           previous.current = new Set(next.conversations.map(item => item.latestId));
           const nextSignature = JSON.stringify(next);
           setData(next);

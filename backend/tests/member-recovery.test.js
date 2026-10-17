@@ -73,6 +73,17 @@ test("connection notices are private, survive read state, replace likes with mat
 afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); });
 afterEach(async () => { await Promise.all(Object.values(mongoose.models).map((model) => model.deleteMany({}))); jest.clearAllMocks(); });
 
+test("like notifications use profile names and disappear after hiding a profile or passing", async () => {
+  const alice = await member("Alice"), bob = await member("Bob");
+  await Profile.updateOne({ userId: alice._id }, { $set: { profileName: "Aster" } });
+  await call("post", "/discover/like", alice).send({ profileId: String(bob._id) }).expect(200);
+  expect((await call("get", "/chats/connections", bob)).body.rows[0].name).toBe("Aster");
+  await Profile.updateOne({ userId: alice._id }, { $set: { discoverable: false } });
+  expect((await call("get", "/chats/connections", bob)).body.rows).toHaveLength(0);
+  await Profile.updateOne({ userId: alice._id }, { $set: { discoverable: true } });
+  await call("post", "/discover/pass", bob).send({ profileId: String(alice._id) }).expect(200);
+  expect((await call("get", "/chats/connections", bob)).body.rows).toHaveLength(0);
+});
 test("recovery changes password once, stores only a digest, and revokes previous sessions", async () => {
   const user = await member("Alice");
   const token = await recovery(user);

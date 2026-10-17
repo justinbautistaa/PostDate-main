@@ -21,8 +21,12 @@ it("alerts on incoming likes and matches and persists read acknowledgement", asy
   api.get.mockResolvedValue({ data: { total: 0, rows: [{ ...row, unread: false }], through: "2026-10-17T14:01:00.000Z" } });
   await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Mark all as read" })); });
   expect(api.post).toHaveBeenCalledWith("/chats/connections/read", { through: "2026-10-17T14:01:00.000Z" });
+  expect(screen.queryByRole("status")).toBeNull();
   api.get.mockResolvedValue({ data: { total: 1, rows: [{ ...row, id: "match:1", kind: "match", href: "/messages?match=1" }], through: "2026-10-17T14:02:00.000Z" } });
   await act(async () => { notify(); });
   expect(screen.getByRole("status").textContent).toContain("You and Alex matched!");
+  api.get.mockResolvedValue({ data: { total: 0, rows: [], through: "2026-10-17T14:03:00.000Z" } });
+  await act(async () => { notify(); });
+  expect(screen.queryByRole("status")).toBeNull();
   unmount(); expect(close).toHaveBeenCalledOnce(); vi.unstubAllGlobals();
 });

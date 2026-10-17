@@ -43,6 +43,13 @@ it("explains that chats begin with a mutual match", async () => {
   await screen.findByText(/When you both like each other/);
   expect(chat.getMessages).not.toHaveBeenCalled();
 });
+it("refreshes the conversation list when connection notifications change", async () => {
+  render(<MemoryRouter><Messages /></MemoryRouter>);
+  await screen.findByRole("button", { name: "Chat with Alex" });
+  chat.getConversations.mockResolvedValue({ conversations: [match, { ...match, id: "match-b", name: "Bea" }], nextCursor: null });
+  fireEvent(window, new Event("postdate:connections-updated"));
+  expect(await screen.findByRole("button", { name: "Chat with Bea" })).toBeTruthy();
+});
 it("opens the compact menu and closes it after navigation or Escape", () => {
   render(<MemoryRouter><AppNav /></MemoryRouter>);
   fireEvent.click(screen.getByRole("button", { name: "Open menu" }));

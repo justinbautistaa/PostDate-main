@@ -145,7 +145,7 @@ export default function Messages() {
     } catch { setError("Your conversations couldn’t load. Please try again."); }
     finally { setLoading(false); }
   }, []);
-  useEffect(() => { refresh(); const timer = setInterval(refresh, 60000); window.addEventListener("postdate:messages-updated", refresh); return () => { clearInterval(timer); window.removeEventListener("postdate:messages-updated", refresh); }; }, [refresh]);
+  useEffect(() => { refresh(); const timer = setInterval(refresh, 60000); window.addEventListener("postdate:messages-updated", refresh); window.addEventListener("postdate:connections-updated", refresh); return () => { clearInterval(timer); window.removeEventListener("postdate:messages-updated", refresh); window.removeEventListener("postdate:connections-updated", refresh); }; }, [refresh]);
   async function more() {
     if (moreLoading || !cursor) return;
     setMoreLoading(true);
