@@ -4,3 +4,4 @@
 .profile-photo-fallback-large>small { font:12px/1.5 Arial,Helvetica,sans-serif; color:#806b62; }
 .profile-photo-fallback-fill { position:absolute; inset:0; aspect-ratio:auto; }
 .matched-profile-photos>.profile-photo-fallback { border:1px solid #eadbd2; border-radius:12px; }
+.pcard>.profile-photo-fallback~.pcard-meta { background:#fffaf5; color:#71354a; border-top:1px solid #e6d3ca; }
