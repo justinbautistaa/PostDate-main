@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema(
     mfaSecret: { type: String, select: false },
     mfaLastCounter: { type: Number, default: -1, select: false },
     mfaRecoveryHashes: { type: [String], select: false },
+    mfaRecoveryRequestHash: { type: String, select: false },
+    mfaRecoveredAt: { type: Date, select: false },
     privacyConsentAt: { type: Date, default: null },
     privacyPolicyVersion: { type: String, default: null },
     verificationHash: { type: String, select: false },

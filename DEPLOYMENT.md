@@ -13,6 +13,22 @@ HTTPS, readiness, page, asset, origin and unauthenticated-access checks. These
 checks do not replace verification with a dedicated member account. Never
 commit test-account credentials or verification codes.
 
+## Lost staff authenticators
+
+An operator with trusted Render environment access can recover one active,
+verified staff account after confirming the owner's identity and consent.
+Set `STAFF_MFA_RECOVERY_EMAIL` to that exact account and
+`STAFF_MFA_RECOVERY_REQUEST_ID` to a newly generated random 32-byte hex value,
+then deploy. This startup action has no public HTTP endpoint. It clears the
+old MFA factors and pending recovery proofs, revokes sessions, preserves the
+password and role, and records a security event. Production staff login still
+requires fresh authenticator enrollment before access is granted.
+
+The request hash is stored on the account, so a restart with the same settings
+does not erase the replacement authenticator. After successful enrollment,
+clear both settings. Never reuse a request ID or run this for an account whose
+owner has not been verified. Back up the new recovery codes privately.
+
 ## Selected services
 
 | Purpose | Provider | Local preparation |
