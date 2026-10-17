@@ -4,6 +4,7 @@
   "description": "A minimal full-stack MERN (MongoDB, Express, React, Node)",
   "main": "index.js",
   "scripts": {
+    "start": "npm run build --prefix frontend && node backend/scripts/startLocal.js",
   "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
 },
   "keywords": [],

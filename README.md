@@ -4,6 +4,20 @@ React/Vite frontend with an Express/Mongoose API. Security and service integrati
 
 ## Run locally
 
+For everyday use on this computer, keep MongoDB running and run `npm start`
+from the project folder. Open **http://localhost:5000**. This builds the website
+and serves it with the API on one address, using the existing local database
+and email settings in `backend/.env`. Photos are saved in `backend/uploads`
+and remain there after restarts. Back up that folder along with MongoDB.
+The local server accepts connections only from this computer. Keep the terminal
+open while using PostDate; press Ctrl+C to stop it. This does not copy accounts
+or photos from the hosted database or Cloudinary.
+
+The coverage configuration loader uses an explicit `js-yaml` 4 override to
+remove the vulnerable legacy `argparse`/`sprintf-js` dependency chain. Its YAML
+loading API remains supported; keep the override until the upstream loader
+updates its dependency.
+
 Use Node 24.15 or later. Install dependencies:
 
 ```powershell

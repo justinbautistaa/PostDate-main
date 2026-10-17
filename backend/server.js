@@ -20,6 +20,7 @@ function createApp() {
   app.set("query parser", "simple");
   require("./utils/proxy").configureProxy(app);
   app.use(helmet({ contentSecurityPolicy: { directives: {
+    "upgrade-insecure-requests": process.env.NODE_ENV === "production" ? [] : null,
     "script-src": ["'self'"], "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com"], "img-src": ["'self'", "blob:", "data:", ...(isCloudStorage() ? [`https://res.cloudinary.com/${cloudConfig().cloud}/`] : [])],
     "connect-src": ["'self'"], "object-src": ["'none'"], "frame-ancestors": ["'none'"],
@@ -49,7 +50,7 @@ function createApp() {
   app.use("/api", require("./routes/workspaceRoutes"));
   app.use("/api", notFound);
   app.use(require("./routes/photoRoutes"));
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" || process.env.SERVE_FRONTEND === "true") {
     const frontend = path.join(__dirname, "../frontend/dist");
     app.use(express.static(frontend, { dotfiles: "deny", index: false }));
     app.get(["/", "/about", "/privacy", "/login", "/signup", "/appeal", "/profile", "/discover", "/dashboard", "/user", "/messages", "/my-reports", "/admin", "/staff", "/moderator"], (req, res) => res.sendFile(path.join(frontend, "index.html")));
@@ -74,7 +75,7 @@ async function start() {
   await startupStep("deletion queue indexes", () => require("./models/DeletionJob").init());
   await startupStep("MFA challenge indexes", () => require("./models/MfaChallenge").init());
   const app = await startupStep("HTTP configuration and client origin", createApp);
-  const server = app.listen(process.env.PORT || 5000, () => console.log("Server started"));
+  const server = app.listen(process.env.PORT || 5000, process.env.HOST || "0.0.0.0", () => console.log("Server started"));
   const stopCleanup = require("./utils/accountDeletion").startDeletionWorker();
   for (const signal of ["SIGTERM", "SIGINT"]) process.once(signal, () => {
     stopCleanup();
