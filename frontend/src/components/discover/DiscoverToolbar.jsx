@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * DiscoverToolbar
@@ -28,13 +28,21 @@ export default function DiscoverToolbar({
   onFilters,
 }) {
   const [open, setOpen] = useState(false);
+  const root = useRef(null), trigger = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const outside = event => { if (!root.current?.contains(event.target)) setOpen(false); };
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [open]);
+  const close = () => { setOpen(false); trigger.current?.focus(); };
 
   function update(patch) {
     onFilters?.({ ...filters, ...patch });
   }
 
   return (
-    <div className="dtoolbar">
+    <div className="dtoolbar" ref={root} onKeyDown={event => { if (event.key === "Escape" && open) { event.stopPropagation(); close(); } }}>
       <style>{`
         .dtoolbar {
           position: relative;
@@ -139,6 +147,9 @@ export default function DiscoverToolbar({
         .dtoolbar-field select { width:100%; min-width:0; padding:10px 12px; border:1px solid #ddc7ba; border-radius:8px; background:#fffaf5; color:#71354a; font:13px Arial,sans-serif; }
         .dtoolbar-field input[type="range"] { width:100%; accent-color:#873a51; }
         .dtoolbar-range-value { font-size: 11px; opacity: 0.75; }
+        .dtoolbar-panel-actions { display:flex; justify-content:space-between; gap:10px; border-top:1px solid #e6d4c9; padding-top:14px; }
+        .dtoolbar-panel-actions button { padding:9px 12px; border:1px solid #ddc7ba; border-radius:8px; background:#fffaf5; color:#873a51; font:600 12px Arial,sans-serif; cursor:pointer; }
+        .dtoolbar-panel-actions button:last-child { background:#873a51; border-color:#873a51; color:#fffaf5; }
       `}</style>
 
       <label className="dtoolbar-search">
@@ -156,6 +167,7 @@ export default function DiscoverToolbar({
       </label>
 
       <button
+        ref={trigger}
         type="button"
         className="dtoolbar-filters"
         aria-expanded={open}
@@ -193,6 +205,7 @@ export default function DiscoverToolbar({
               onChange={(e) => update({ maxAge: Number(e.target.value) })}
             />
           </div>
+          <div className="dtoolbar-panel-actions"><button type="button" onClick={() => { onQuery?.(""); onFilters?.({ gender: "Any", minAge: 18, maxAge: 60 }); }}>Reset filters</button><button type="button" onClick={close}>Done</button></div>
         </div>
       )}
     </div>

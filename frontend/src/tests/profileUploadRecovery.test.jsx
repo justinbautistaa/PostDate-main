@@ -1,0 +1,50 @@
+import React from "react";
+import { beforeEach, expect, it, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import PhotosTab from "../components/profile/PhotosTab";
+import DiscoverToolbar from "../components/discover/DiscoverToolbar";
+import EditProfileModal from "../components/profile/EditProfileModal";
+import { uploadProfilePhotos } from "../services/postdateApi";
+vi.mock("../services/postdateApi", () => ({ uploadProfilePhotos: vi.fn(), deleteProfilePhoto: vi.fn(), setProfileAvatar: vi.fn(), toPhotoUrl: path => path }));
+beforeEach(() => vi.resetAllMocks());
+it("retains failed upload files for an explicit retry and only updates the gallery on success", async () => {
+  const onChange = vi.fn(), file = new File(["photo"], "portrait.png", { type: "image/png" });
+  uploadProfilePhotos.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ photoPaths: ["/new.webp"], avatarPath: "/new.webp" });
+  const { container } = render(<PhotosTab onChange={onChange} />);
+  fireEvent.change(container.querySelector('input[type="file"]'), { target: { files: [file] } });
+  await screen.findByRole("button", { name: "Retry upload" });
+  expect(onChange).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Retry upload" }));
+  await waitFor(() => expect(onChange).toHaveBeenCalledWith({ photoPaths: ["/new.webp"], avatarPath: "/new.webp" }));
+  expect(uploadProfilePhotos).toHaveBeenNthCalledWith(2, [file]);
+  expect(screen.queryByRole("button", { name: "Retry upload" })).toBeNull();
+});
+it("rejects unsupported files before an upload request", async () => {
+  const { container } = render(<PhotosTab />);
+  fireEvent.change(container.querySelector('input[type="file"]'), { target: { files: [new File(["x"], "portrait.heic", { type: "image/heic" })] } });
+  expect(screen.getByRole("alert").textContent).toContain("Convert HEIC");
+  expect(uploadProfilePhotos).not.toHaveBeenCalled();
+});
+it("resets discovery filters and returns keyboard focus when closing", () => {
+  const onQuery = vi.fn(), onFilters = vi.fn();
+  render(<DiscoverToolbar query="Alex" filters={{ gender: "Woman", minAge: 18, maxAge: 35 }} onQuery={onQuery} onFilters={onFilters} />);
+  const trigger = screen.getByRole("button", { name: "Filters" });
+  fireEvent.click(trigger);
+  fireEvent.click(screen.getByRole("button", { name: "Reset filters" }));
+  expect(onQuery).toHaveBeenCalledWith("");
+  expect(onFilters).toHaveBeenCalledWith({ gender: "Any", minAge: 18, maxAge: 60 });
+  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+  expect(screen.queryByRole("dialog")).toBeNull(); expect(document.activeElement).toBe(trigger);
+});
+it("keeps edited profile text after a failed save so it can be retried", async () => {
+  const onSave = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({}), onClose = vi.fn();
+  render(<EditProfileModal open profile={{ displayName: "Alex", gender: "female", birthdate: "1999-01-01" }} onSave={onSave} onClose={onClose} />);
+  const input = screen.getByLabelText("Display name");
+  fireEvent.change(input, { target: { value: "Aster" } });
+  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+  await screen.findByRole("alert");
+  expect(input.value).toBe("Aster"); expect(onClose).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+  await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+  expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ displayName: "Aster" }));
+});

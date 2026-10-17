@@ -48,6 +48,8 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
   const [busyId, setBusyId] = useState(null); // the one tile mid-delete or mid-avatar-switch
   const [error, setError] = useState("");
   const [failed, setFailed] = useState({});
+  const [pendingFiles, setPendingFiles] = useState([]);
+  const requestPending = useRef(false);
   const locked = uploading || busyId !== null;
 
   const tiles = toTiles(photoPaths, avatarPath);
@@ -56,17 +58,28 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
     const files = Array.from(event.target.files ?? []);
     event.target.value = ""; // lets the same file be picked again later
     if (files.length === 0) return;
+    if (requestPending.current) return;
+    if (files.some(file => !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type))) { setError("Choose JPG, PNG, WEBP or static GIF photos. Convert HEIC files first."); return; }
+    if (files.length > 10) { setError("Choose up to 10 photos per upload."); return; }
+    if (photoPaths.length + files.length > 30) { setError("You can keep up to 30 photos. Delete some before adding more."); return; }
     if (files.reduce((total, file) => total + file.size, 0) > 50 * 1024 * 1024) { setError("Choose up to 50 MB of photos per upload."); return; }
-
+    setPendingFiles(files);
+    await sendFiles(files);
+  }
+  async function sendFiles(files) {
+    if (requestPending.current) return;
+    requestPending.current = true;
     setUploading(true);
     setError("");
     try {
       /* 🔌 BACKEND: POST /api/profile/photos — see services/postdateApi.js. */
       const result = await uploadProfilePhotos(files);
       onChange?.(result);
+      setPendingFiles([]);
     } catch (err) {
       setError(err?.response?.data?.message ?? "Could not upload those photos. Try again.");
     } finally {
+      requestPending.current = false;
       setUploading(false);
     }
   }
@@ -112,6 +125,7 @@ export default function PhotosTab({ photoPaths = [], avatarPath = null, onChange
           {error}
         </p>
       )}
+      {pendingFiles.length > 0 && !uploading && <div className="photos-retry"><p>Your {pendingFiles.length === 1 ? "photo is" : `${pendingFiles.length} photos are`} still selected.</p><button type="button" className="photos-add" disabled={locked} onClick={() => sendFiles(pendingFiles)}>Retry upload</button><button type="button" disabled={locked} onClick={() => { setPendingFiles([]); setError(""); }}>Clear selection</button></div>}
 
       <p className="photos-guidance">JPG, PNG or WEBP · Up to 50 MB per upload · Static GIF also supported</p>
       {tiles.length === 0 && <p className="photos-empty">No photos yet. Add your first photo to get started.</p>}
