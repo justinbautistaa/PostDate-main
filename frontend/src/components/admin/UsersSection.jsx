@@ -49,7 +49,8 @@ export default function UsersSection({ role, onChanged, managedRole, teamOnly = 
 
   const { data, loading, error, reload } = useAdminQuery(
     () => getAdminUsers({ q: query, status, role: managedRole || roleFilter, ...(teamOnly ? { team: "true" } : {}), page }),
-    [query, status, roleFilter, page, managedRole, teamOnly]
+    [query, status, roleFilter, page, managedRole, teamOnly],
+    { refreshMs: 10000 }
   );
 
   const isAdmin = role === "admin";
@@ -119,6 +120,7 @@ export default function UsersSection({ role, onChanged, managedRole, teamOnly = 
       />
 
       <Sheet>
+        <p className="ad-muted-note">Updates every 10 seconds while this tab is visible. Active means account access is enabled, not currently online. Last seen reflects recent server activity and can lag by about a minute.</p>
         <div className="ad-toolbar">
           <SearchBox value={text} onChange={setText} placeholder={isAdmin ? "Search name or email" : "Search by name"} label="Search users" />
           <Segmented
@@ -171,7 +173,7 @@ export default function UsersSection({ role, onChanged, managedRole, teamOnly = 
                     <tr>
                       <th scope="col">Member</th>
                       <th scope="col">Role</th>
-                      <th scope="col">Status</th>
+                      <th scope="col">Account status</th>
                       <th scope="col">Joined</th>
                       <th scope="col">Last seen</th>
                       <th scope="col" className="ad-num">
