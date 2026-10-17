@@ -13,6 +13,7 @@
  * Usage:
  *   <ProfileCard profile={p} onOpen={() => setSelected(p)} />
  */
+import ProfilePhoto from "../ProfilePhoto";
 export default function ProfileCard({ profile, onOpen }) {
   const { name, age, distanceMi, gender, photoUrl } = profile;
 
@@ -80,7 +81,7 @@ export default function ProfileCard({ profile, onOpen }) {
         }
       `}</style>
 
-      {photoUrl && <img src={photoUrl} alt="" />}
+      <ProfilePhoto src={photoUrl} name={name} large fill />
 
       <span className="pcard-meta">
         <span className="pcard-name">

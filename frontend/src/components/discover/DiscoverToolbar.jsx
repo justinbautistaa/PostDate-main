@@ -19,7 +19,7 @@ import { useState } from "react";
  */
 
 /* 🎛️ EDIT THE FILTER CONTROLS HERE */
-const GENDER_OPTIONS = ["Any", "Woman", "Man", "Non-binary"];
+const GENDER_OPTIONS = ["Any", "Woman", "Man", "Non-binary", "Self-described", "Prefer not to say"];
 
 export default function DiscoverToolbar({
   query = "",
@@ -52,7 +52,8 @@ export default function DiscoverToolbar({
 
         .dtoolbar-search {
           flex: 1 1 auto;
-          width: clamp(200px, 32vw, 684px);   /* 🎛️ matches the Figma's search bar width */
+          width:0;
+          min-width:0;
           display: flex;
           align-items: center;
           gap: 10px;
@@ -71,6 +72,8 @@ export default function DiscoverToolbar({
         }
         .dtoolbar-search input {
           flex: 1;
+          min-width:0;
+          width:100%;
           border: none;
           background: transparent;
           outline: none;
@@ -108,7 +111,7 @@ export default function DiscoverToolbar({
           top: calc(100% + 10px);
           right: 0;
           z-index: 5;
-          width: min(320px, 90vw);
+          width: min(320px, 100%);
 
           background: var(--pd-cream);
           border: 1px solid var(--pd-maroon);

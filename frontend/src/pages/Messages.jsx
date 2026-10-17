@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import AppNav from "../components/AppNav";
+import ProfilePhoto from "../components/ProfilePhoto";
 import ReportForm from "../components/ReportForm";
 import MatchedProfile from "../components/MatchedProfile";
 import ReviewForm from "../components/ReviewForm";
@@ -13,7 +14,7 @@ import "./RoleDesigns.css";
 
 const time = value => new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 function Avatar({ person }) {
-  return <span className="chat-avatar">{person.avatarPath ? <img src={toPhotoUrl(person.avatarPath)} alt="" /> : person.name.slice(0, 1).toUpperCase()}</span>;
+  return <span className="chat-avatar"><ProfilePhoto src={toPhotoUrl(person.avatarPath)} name={person.name} /></span>;
 }
 function Thread({ person, onSent, onBack }) {
   const [messages, setMessages] = useState([]);

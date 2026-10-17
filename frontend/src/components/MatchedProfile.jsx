@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getMatchedProfile } from "../services/chatApi";
 import { toPhotoUrl } from "../services/postdateApi";
 import ReportForm from "./ReportForm";
+import ProfilePhoto from "./ProfilePhoto";
 import "./MatchedProfile.css";
 export default function MatchedProfile({ matchId, onClose, onRate, onDisconnect, reviewed = false, ratingReady = true }) {
   const [profile, setProfile] = useState(null);
@@ -43,7 +44,7 @@ export default function MatchedProfile({ matchId, onClose, onRate, onDisconnect,
     {!profile && !error && <p role="status">Loading profile…</p>}
     {error && <div role="alert"><p>{error}</p><button type="button" onClick={() => setRetry(v => v + 1)}>Try again</button></div>}
     {profile && <>
-      <div className="matched-profile-layout"><div className="matched-profile-photos">{[...new Set([profile.avatarPath, ...(profile.photoPaths || [])].filter(Boolean))].map((photo, i) => <img key={photo} src={toPhotoUrl(photo)} alt={`${profile.name} — photo ${i + 1}`} />)}{!profile.avatarPath && !profile.photoPaths?.length && <div className="matched-profile-photo-empty"><span aria-hidden="true">♡</span><p>No photos shared yet.</p></div>}</div>
+      <div className="matched-profile-layout"><div className="matched-profile-photos">{[...new Set([profile.avatarPath, ...(profile.photoPaths || [])].filter(Boolean))].map((photo, i) => <ProfilePhoto key={photo} src={toPhotoUrl(photo)} name={profile.name} alt={`${profile.name} — photo ${i + 1}`} large />)}{!profile.avatarPath && !profile.photoPaths?.length && <div className="matched-profile-photo-empty"><span aria-hidden="true">♡</span><p>No photos shared yet.</p></div>}</div>
       <div className="matched-profile-details">
       <h3>About {profile.name}</h3><p className="matched-profile-bio">{profile.bio || "No bio shared yet."}</p>
       <h3>Interests</h3><div className="matched-profile-tags">{profile.tags?.length ? profile.tags.map(tag => <span key={tag}>{tag}</span>) : <p>No interests shared yet.</p>}</div>

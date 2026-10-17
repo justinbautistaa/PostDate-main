@@ -25,6 +25,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getMatchHistory } from "../services/postdateApi";
 import { Link } from "react-router-dom";
 import ReviewForm from "./ReviewForm";
+import ProfilePhoto from "./ProfilePhoto";
 
 const PAGE_SIZE = 8; // 🎛️ matches fetched per request
 
@@ -42,7 +43,7 @@ function Person({ person }) {
   const { name = "", avatarUrl } = person ?? {};
   return (
     <span className="mh-person">
-      <span className="mh-avatar">{avatarUrl && <img src={avatarUrl} alt="" />}</span>
+      <span className="mh-avatar"><ProfilePhoto src={avatarUrl} name={name} /></span>
       <span className="mh-name" title={name}>
         {name}
       </span>

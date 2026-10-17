@@ -7,6 +7,7 @@
  *
  * `reviews` is [{ id, author, avatarUrl, rating, body }, ...]
  */
+import ProfilePhoto from "../ProfilePhoto";
 export default function ReviewsTab({ reviews = [] }) {
   if (reviews.length === 0) {
     /* Empty states should tell the user what to do next, not just say "none". */
@@ -84,11 +85,7 @@ export default function ReviewsTab({ reviews = [] }) {
 
       {reviews.map(({ id, author, avatarUrl, rating, body }) => (
         <li className="reviews-row" key={id}>
-          {avatarUrl ? (
-            <img className="reviews-avatar" src={avatarUrl} alt="" />
-          ) : (
-            <span className="reviews-avatar" aria-hidden="true" />
-          )}
+          <ProfilePhoto className="reviews-avatar" src={avatarUrl} name={author} />
 
           <div>
             <div className="reviews-head">

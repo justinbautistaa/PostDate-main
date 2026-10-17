@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ReportForm from "../ReportForm";
+import ProfilePhoto from "../ProfilePhoto";
 
 /**
  * ProfileModal
@@ -182,7 +183,7 @@ export default function ProfileModal({ profile, onClose, onLike, onPass }) {
         </button>
 
         <div className="pmodal-photo">
-          {photoUrl && <img src={photoUrl} alt="" />}
+          <ProfilePhoto src={photoUrl} name={name} large fill />
 
           <span className="pmodal-dots" aria-hidden="true">
             <span className="d1" />
