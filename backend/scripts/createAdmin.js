@@ -82,7 +82,7 @@ async function main() {
 
   let password = args.password === true ? "" : args.password || process.env.ADMIN_PASSWORD || "";
   if (!password) password = await promptHidden("Password (min 12 characters): ");
-  if (String(password).length < MIN_STAFF_PASSWORD || Buffer.byteLength(String(password), "utf8") > 72) {
+  if (!String(password).trim() || String(password).length < MIN_STAFF_PASSWORD || Buffer.byteLength(String(password), "utf8") > 72) {
     throw new Error(`Staff passwords need at least ${MIN_STAFF_PASSWORD} characters.`);
   }
 

@@ -70,3 +70,39 @@ test.each(["admin", "moderator", "user"])("recovery cannot reactivate a suspende
   await call("post", "/auth/login").send({ email: user.email, password: "ReplacementSecret123" }).expect(403);
   expect((await User.findById(user.id)).isActive).toBe(false);
 });
+
+test.each(["admin", "moderator"])("production %s enrollment and recovery retain MFA and role boundaries", async role => {
+  const originalEnvironment = process.env.NODE_ENV;
+  const originalKey = process.env.MFA_ENCRYPTION_KEY;
+  process.env.NODE_ENV = "production";
+  process.env.MFA_ENCRYPTION_KEY = "a".repeat(64);
+  try {
+    const password = "OriginalSecret123";
+    const user = await User.create({ firstName: "Staff", lastName: "Test", email: `${role}@example.test`, passwordHash: await bcrypt.hash(password, 4), role, isVerified: true });
+    const pending = await call("post", "/auth/login").send({ email: user.email, password }).expect(200);
+    expect(pending.headers["set-cookie"]).toBeUndefined();
+    expect(pending.body).toMatchObject({ mfaRequired: true, mfaSetupRequired: true });
+    const authenticator = new (require("otpauth").TOTP)({ secret: pending.body.secret });
+    const verified = await call("post", "/auth/mfa/verify").send({ challenge: pending.body.challenge, code: authenticator.generate() }).expect(200);
+    const oldCookie = verified.headers["set-cookie"][0].split(";")[0];
+    expect(verified.headers["set-cookie"][0]).toMatch(/__Host-postdate=.*HttpOnly; Secure; SameSite=Strict/);
+    await call("get", "/admin/overview").set("Cookie", oldCookie).expect(200);
+    await call("get", "/admin/activity").set("Cookie", oldCookie).expect(role === "admin" ? 200 : 403);
+    await call("post", "/auth/mfa/disable").set("Cookie", oldCookie).send({ password, code: verified.body.recoveryCodes[0] }).expect(403);
+    await call("post", "/auth/recovery/request").send({ email: user.email }).expect(200);
+    const proof = await call("post", "/auth/recovery/verify").send({ email: user.email, code: latestCode(user.email, "recovery") }).expect(200);
+    await call("post", "/auth/recovery/reset").send({ resetToken: proof.body.resetToken, newPassword: "ReplacementSecret123" }).expect(200);
+    await call("get", "/admin/overview").set("Cookie", oldCookie).expect(401);
+    const login = await call("post", "/auth/login").send({ email: user.email, password: "ReplacementSecret123" }).expect(200);
+    expect(login.body).toMatchObject({ mfaRequired: true, mfaSetupRequired: false });
+    expect(login.headers["set-cookie"]).toBeUndefined();
+    const restored = await call("post", "/auth/mfa/verify").send({ challenge: login.body.challenge, code: verified.body.recoveryCodes[0] }).expect(200);
+    const cookie = restored.headers["set-cookie"][0].split(";")[0];
+    await call("get", "/admin/overview").set("Cookie", cookie).expect(200);
+    await call("get", "/admin/activity").set("Cookie", cookie).expect(role === "admin" ? 200 : 403);
+  } finally {
+    process.env.NODE_ENV = originalEnvironment;
+    if (originalKey === undefined) delete process.env.MFA_ENCRYPTION_KEY;
+    else process.env.MFA_ENCRYPTION_KEY = originalKey;
+  }
+});

@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import Login from "../pages/Login";
 import RecoveryForm from "../components/auth/RecoveryForm";
+import NewPasswordForm from "../components/auth/NewPasswordForm";
 import * as api from "../services/postdateApi";
 vi.mock("../services/postdateApi", () => ({ loginUser: vi.fn(), requestRecoveryCode: vi.fn(), verifyRecoveryCode: vi.fn(), resetPassword: vi.fn() }));
 vi.mock("../components/VerificationModal", () => ({ default: () => null }));
@@ -12,6 +13,17 @@ beforeEach(() => {
   api.requestRecoveryCode.mockResolvedValue({ expiresInSeconds: 300, resendAfterSeconds: 60 });
   api.verifyRecoveryCode.mockResolvedValue({ resetToken: "reset-proof" });
   api.resetPassword.mockResolvedValue({ ok: true });
+});
+
+it.each([" ".repeat(12), "a".repeat(73), "😀".repeat(19), "short"])("rejects an unusable replacement password before submitting %#", async password => {
+  const submit = vi.fn();
+  render(<NewPasswordForm onSubmit={submit} />);
+  fireEvent.change(screen.getByLabelText("New password"), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText("Repeat"), { target: { value: password } });
+  fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+  expect(screen.getByRole("alert")).toBeTruthy();
+  expect(screen.getByLabelText("New password").getAttribute("aria-invalid")).toBe("true");
+  expect(submit).not.toHaveBeenCalled();
 });
 it.each([["admin", "/admin"], ["moderator", "/staff"], ["user", "/dashboard"]])("%s login opens the correct workspace", async (role, destination) => {
   api.loginUser.mockResolvedValue({ userId: `person-${role}`, role });

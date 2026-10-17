@@ -1,5 +1,5 @@
 export function validPassword(value) {
-  return typeof value === "string" && value.trim().length > 0 && value.length >= 8 && new TextEncoder().encode(value).length <= 72;
+  return typeof value === "string" && value.trim().length > 0 && value.length >= 12 && new TextEncoder().encode(value).length <= 72;
 }
 export function ageFromBirthdate(value, now = new Date()) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return NaN;

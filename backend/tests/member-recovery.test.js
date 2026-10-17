@@ -54,6 +54,15 @@ test("recovery changes password once, stores only a digest, and revokes previous
   expect(updated.resetTokenHash).toBeUndefined();
   await call("get", "/discover", user).expect(401);
 });
+
+test.each([" ".repeat(12), "a".repeat(73), "😀".repeat(19)])("recovery rejects unusable passwords without consuming the reset token %#", async invalidPassword => {
+  const user = await member("Alice");
+  const token = await recovery(user);
+  await call("post", "/auth/recovery/reset").send({ resetToken: token, newPassword: invalidPassword }).expect(400);
+  await call("post", "/auth/login").send({ email: user.email, password: "OriginalSecret123" }).expect(200);
+  await call("post", "/auth/recovery/reset").send({ resetToken: token, newPassword: "ReplacementSecret123" }).expect(200);
+  await call("post", "/auth/login").send({ email: user.email, password: "ReplacementSecret123" }).expect(200);
+});
 test("unknown account requests have the same acknowledgement", async () => {
   const user = await member("Alice");
   const known = await call("post", "/auth/recovery/request").send({ email: user.email });

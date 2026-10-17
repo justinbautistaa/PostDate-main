@@ -59,7 +59,7 @@ async function verifyRecovery(req, res) {
 async function resetPassword(req, res) {
   const { resetToken, newPassword } = req.body || {};
   if (typeof resetToken !== "string" || !/^[a-f0-9]{64}$/.test(resetToken) ||
-      typeof newPassword !== "string" || newPassword.length < 12 || Buffer.byteLength(newPassword, "utf8") > 72) {
+      typeof newPassword !== "string" || !newPassword.trim() || newPassword.length < 12 || Buffer.byteLength(newPassword, "utf8") > 72) {
     return res.status(400).json({ message: "Use a valid reset token and a password of at least 12 characters, at most 72 UTF-8 bytes" });
   }
   const filter = { resetTokenHash: digest(resetToken), resetExpiresAt: { $gt: new Date() } };

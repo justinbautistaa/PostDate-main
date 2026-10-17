@@ -1,6 +1,7 @@
 import PasswordInput from "../PasswordInput";
 import { useState } from "react";
 import useAuthAction from "./useAuthAction";
+import { validPassword } from "../../utils/validation";
 
 /**
  * NewPasswordForm
@@ -27,6 +28,7 @@ export default function NewPasswordForm({ onSubmit }) {
   const { busy, error, setError, run } = useAuthAction();
 
   const tooShort = password.length < MIN_PASSWORD_LENGTH;
+  const passwordInvalid = !validPassword(password);
   const mismatch = password !== repeat;
 
   const edit = (setValue) => (e) => {
@@ -37,13 +39,13 @@ export default function NewPasswordForm({ onSubmit }) {
   function handleSubmit(e) {
     e.preventDefault();
     setTried(true);
-    if (tooShort || mismatch) return;
+    if (passwordInvalid || mismatch) return;
     run(() => onSubmit(password), "Couldn't save it. Start over from log-in");
   }
 
-  const shortNow = tried && tooShort;
+  const shortNow = tried && passwordInvalid;
   const text =
-    error || (shortNow ? `Use at least ${MIN_PASSWORD_LENGTH} characters` : "Passwords must match");
+    error || (shortNow ? (tooShort ? `Use at least ${MIN_PASSWORD_LENGTH} characters` : !password.trim() ? "Password cannot contain only spaces" : "Use at most 72 UTF-8 bytes; emoji and accented characters can use several bytes") : "Passwords must match");
   const isProblem = Boolean(error) || shortNow || (tried && mismatch);
 
   return (
