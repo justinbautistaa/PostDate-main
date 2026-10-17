@@ -105,7 +105,7 @@ export async function getTasteOptions() {
  *          modal's countdown starts from
  */
 export async function sendVerificationCode(email = pendingVerificationEmail) {
-  const { data } = await api.post("/verify/send", { email });
+  const { data } = await api.post("/verify/send", { email }, { timeout: 30000 });
   return data;
 }
 
@@ -157,7 +157,7 @@ export async function loginUser({ email, password }) {
  *    reveal who has an account.
  */
 export async function requestRecoveryCode(email) {
-  return (await api.post("/auth/recovery/request", { email })).data;
+  return (await api.post("/auth/recovery/request", { email }, { timeout: 30000 })).data;
 }
 export async function verifyRecoveryCode({ email, code }) {
   return (await api.post("/auth/recovery/verify", { email, code })).data;

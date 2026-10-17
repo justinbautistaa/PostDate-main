@@ -1,6 +1,16 @@
 import { beforeEach, expect, it, vi } from "vitest";
 
 beforeEach(() => { vi.resetModules(); localStorage.clear(); });
+it("allows enough time for hosted email delivery without extending ordinary API calls", async () => {
+  const { default: api } = await import("../api");
+  const { sendVerificationCode, requestRecoveryCode } = await import("../services/postdateApi");
+  const captured = [];
+  api.defaults.adapter = async config => { captured.push(config); return { data: {}, status: 200, statusText: "OK", headers: {}, config }; };
+  await sendVerificationCode("test@example.test");
+  await requestRecoveryCode("test@example.test");
+  await api.get("/auth/session");
+  expect(captured.map(config => config.timeout)).toEqual([30000, 30000, 15000]);
+});
 it("shows rejected MFA disable factors without expiring the signed-in session", async () => {
   const { default: api } = await import("../api");
   const expired = vi.fn();

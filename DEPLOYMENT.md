@@ -1,6 +1,17 @@
 # PostDate deployment
 
-Updated October 16, 2026. No hosted service was created by this work and no paid plan was selected. Local Gmail delivery has been checked; hosted delivery must be checked separately.
+Updated October 17, 2026. The deployed service is https://postdate.onrender.com,
+linked to the `main` branch of `justinbautistaa/PostDate-main`. Deploys are manual.
+The service uses the free plan, Atlas, Cloudinary and Gmail API delivery.
+Do not replace Cloudinary with the service's temporary filesystem: uploaded
+files there do not survive restarts and redeploys. Persistent server uploads
+require a paid service with a mounted persistent disk. Browser localStorage
+cannot serve as shared profile-photo storage for other members.
+
+Run `node backend/scripts/checkDeployment.js` after a release for read-only
+HTTPS, readiness, page, asset, origin and unauthenticated-access checks. These
+checks do not replace verification with a dedicated member account. Never
+commit test-account credentials or verification codes.
 
 ## Selected services
 
@@ -8,14 +19,14 @@ Updated October 16, 2026. No hosted service was created by this work and no paid
 | --- | --- | --- |
 | Same-origin website/API and TLS | Render | `render.yaml`, production static serving, `/healthz`, graceful shutdown |
 | Database | MongoDB Atlas | Mongoose ownership checks, database-backed production rate counters |
-| Verification and recovery email | Gmail/SMTP or Resend | Server-side delivery, expiring one-use codes; the Render template uses Resend |
+| Verification and recovery email | Gmail API | Server-side HTTPS delivery with expiring one-use codes |
 | Photo storage | Cloudinary | Signed server-side upload/delete, decoded and re-encoded WebP images |
 
 Render's [free plan](https://render.com/docs/free) sleeps after inactivity and has an ephemeral filesystem. It is a preview option; choose a paid always-on service for a public launch after reviewing cost. Cloudinary avoids storing new photos on that filesystem. Atlas [free clusters](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/) do not provide managed backups. Review [Resend's current limits](https://resend.com/pricing) and verify a sender domain before sending to real members. No plan upgrade is automatic here.
 
 ## Accounts and release procedure
 
-First-time setup: create a private GitHub repository and push this project, keeping `.env`, uploads, backups and dependency folders excluded by `.gitignore`. This local checkout has no Git remote yet. In Render choose **New → Blueprint**, connect that repository, and select this project's `render.yaml`. The template builds and serves the React site through the same Node/Express service, so the frontend needs no separate API URL.
+For a new installation, keep `.env`, uploads, backups and dependency folders excluded by `.gitignore`. In Render choose **New → Blueprint**, connect the repository, and select this project's `render.yaml`. The template builds and serves the React site through the same Node/Express service, so the frontend needs no separate API URL. For the existing deployment, update its linked repository and manually deploy the reviewed commit.
 
 1. Connect the offered Render and Resend plugins, or use those providers' dashboards. Create Atlas and Cloudinary accounts under your own identity. A verified sender domain you control is required for normal email delivery. Account credentials belong in provider secret settings, never chat or Git.
 2. Put this reviewed code and its lockfiles in your repository. Before release run `npm ci --prefix backend`, `npm test --prefix backend`, `npm ci --prefix frontend`, `npm run build --prefix frontend` and the three npm audits. The active GitHub security workflow repeats local checks when pushed. Deployment is manual in the blueprint.

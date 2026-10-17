@@ -1,6 +1,6 @@
 import React from "react";
 import { beforeEach, expect, it, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import Signup from "../pages/Signup";
 import VerificationModal from "../components/VerificationModal";
@@ -24,6 +24,36 @@ beforeEach(() => {
   api.submitSignup.mockResolvedValue({ ok: true });
   api.sendVerificationCode.mockResolvedValue({ expiresIn: 300 });
   api.verifyCode.mockResolvedValue({ verified: true });
+});
+
+it("allows a replacement code after one minute while the original remains valid", async () => {
+  vi.useFakeTimers();
+  try {
+    render(<VerificationModal open email="new@example.test" />);
+    await act(async () => {});
+    expect(screen.getByRole("button", { name: "Verify email" }).disabled).toBe(false);
+    expect(screen.queryByRole("button", { name: "Send a new code" })).toBeNull();
+    await act(async () => { vi.advanceTimersByTime(61000); });
+    expect(screen.getByRole("timer").textContent).toBe("03:59");
+    fireEvent.click(screen.getByRole("button", { name: "Send a new code" }));
+    await act(async () => {});
+    expect(api.sendVerificationCode).toHaveBeenCalledTimes(2);
+  } finally { vi.useRealTimers(); }
+});
+
+it("expires the code when returning from a suspended background tab", async () => {
+  vi.useFakeTimers();
+  try {
+    render(<VerificationModal open email="new@example.test" />);
+    await act(async () => {});
+    fireEvent.change(screen.getByLabelText("Verification code"), { target: { value: "123456" } });
+    vi.setSystemTime(Date.now() + 301000);
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); });
+    expect(screen.getByRole("timer").textContent).toBe("00:00");
+    fireEvent.click(screen.getByRole("button", { name: "Verify email" }));
+    expect(api.verifyCode).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert").textContent).toMatch(/expired/);
+  } finally { vi.useRealTimers(); }
 });
 
 it("keeps an invalid verification code on the form without showing account success", async () => {

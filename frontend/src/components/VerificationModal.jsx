@@ -45,6 +45,7 @@ export default function VerificationModal({
 }) {
   const [code, setCode] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [resendAt, setResendAt] = useState(0);
   const [sending, setSending] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +53,7 @@ export default function VerificationModal({
   const continueRef = useRef(null);
   const inputRef = useRef(null);
   const sentRef = useRef(false); // stops StrictMode's double-run from sending two emails
+  const expiresAt = useRef(0);
 
   /* 🔌 BACKEND: ask for a fresh code. Used on open and by "Send a new code". */
   const requestCode = useCallback(async () => {
@@ -61,6 +63,8 @@ export default function VerificationModal({
     try {
       const res = await sendVerificationCode(email);
       setSecondsLeft(res?.expiresIn ?? 300); // 🎛️ fallback lifetime in seconds
+      expiresAt.current = Date.now() + (res?.expiresIn ?? 300) * 1000;
+      setResendAt(Date.now() + 60000);
       inputRef.current?.focus();
     } catch (err) {
       setError(
@@ -79,6 +83,9 @@ export default function VerificationModal({
       setCode("");
       setError("");
       setVerifiedResult(null);
+      setSecondsLeft(0);
+      expiresAt.current = 0;
+      setResendAt(0);
       return;
     }
     if (sendOnOpen && !sentRef.current) {
@@ -90,8 +97,10 @@ export default function VerificationModal({
   /* Countdown. Ticks once a second until it reaches zero. */
   useEffect(() => {
     if (!open || verifiedResult || secondsLeft <= 0) return;
-    const id = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(id);
+    const update = () => setSecondsLeft(Math.max(0, Math.ceil((expiresAt.current - Date.now()) / 1000)));
+    const id = setInterval(update, 1000);
+    document.addEventListener("visibilitychange", update);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", update); };
   }, [open, secondsLeft > 0, verifiedResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -128,7 +137,7 @@ export default function VerificationModal({
       setError(`Enter the ${codeLength}-digit code from your email.`);
       return;
     }
-    if (expired) {
+    if (expired || Date.now() >= expiresAt.current) {
       setError("That code has expired. Send a new one to continue.");
       return;
     }
@@ -408,12 +417,12 @@ export default function VerificationModal({
               {checking ? "Verifying…" : "Verify email"}
             </button>
 
-            {expired && (
+            {(expired || Date.now() >= resendAt) && (
               <button
                 type="button"
                 className="vmodal-resend"
                 onClick={requestCode}
-                disabled={sending}
+                disabled={sending || checking}
               >
                 {sending ? "Sending…" : "Send a new code"}
               </button>

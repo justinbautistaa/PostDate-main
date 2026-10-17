@@ -12,7 +12,8 @@
  * enforces the real check on every request via requireAuth/requireRole
  * (backend/middleware/auth.js) regardless of what this file does.
  */
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -21,18 +22,22 @@ import MyReports from "./pages/MyReports";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Appeal from "./pages/Appeal";
-import Discover from "./pages/Discover";
-import Profile from "./pages/Profile";
-import AdminDashboard from "./pages/AdminDashboard";
-import UserDashboard from "./pages/UserDashboard";
-import Messages from "./pages/Messages";
+const Discover = lazy(() => import("./pages/Discover"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const Messages = lazy(() => import("./pages/Messages"));
 import RequireAuth from "./components/RequireAuth";
+import PageErrorBoundary from "./components/PageErrorBoundary";
 
 import "./App.css";
 import "./RoleUI.css";
 
 function App() {
+  const location = useLocation();
   return (
+    <PageErrorBoundary key={location.pathname}>
+    <Suspense fallback={<main role="status" style={{ padding: "48px 24px", textAlign: "center" }}>Loading PostDate…</main>}>
     <Routes>
       {/* ── public ────────────────────────────────────────────────────── */}
       <Route path="/" element={<Home />} />
@@ -92,6 +97,8 @@ function App() {
       {/* Anything unrecognised goes home rather than showing a blank page. */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
+    </PageErrorBoundary>
   );
 }
 

@@ -83,7 +83,7 @@ export default function WhoAreYouForm({ step = 1, totalSteps = 3, onContinue, in
     firstName: !values.firstName.trim(),
     lastName: !values.lastName.trim(),
     email: !EMAIL_PATTERN.test(values.email.trim()),
-    password: values.password.length < MIN_PASSWORD_LENGTH,
+    password: values.password.length < MIN_PASSWORD_LENGTH || new TextEncoder().encode(values.password).length > 72,
     // Empty, or younger than the site's minimum age — the date picker's
     // own min/max stop most bad input before it gets here, but someone
     // typing the date manually on some browsers can still slip past those.
@@ -106,7 +106,7 @@ export default function WhoAreYouForm({ step = 1, totalSteps = 3, onContinue, in
       totalSteps={totalSteps}
       buttonLabel="Continue"
       onButtonClick={handleContinue}
-      error={touched && !isValid ? "Fill in the highlighted fields to continue." : null}
+      error={touched && !isValid ? (problems.password ? "Use a password with at least 12 characters and at most 72 UTF-8 bytes." : "Fill in the highlighted fields to continue.") : null}
     >
       <style>{`
         /* a label sitting on top of a field */
