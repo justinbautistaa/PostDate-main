@@ -66,6 +66,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
+  await require("../models/RequestBucket").deleteMany({});
   await User.deleteMany({});
   await require("../models/Profile").deleteMany({});
   jest.clearAllMocks();

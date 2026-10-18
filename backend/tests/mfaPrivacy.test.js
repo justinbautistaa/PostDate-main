@@ -189,3 +189,24 @@ test("signup records a versioned privacy acknowledgement and rejects missing con
   await call("post","/signup").send({...input,privacyConsent:true}).expect(201);
   const user=await User.findOne({email:input.email});expect(user.privacyConsentAt).toBeInstanceOf(Date);expect(user.privacyPolicyVersion).toBe("2026-10-16");
 });
+
+test("a push subscription race cannot transfer another account's device", async () => {
+  const Subscription = require("../models/PushSubscription");
+  await Subscription.init();
+  const endpoint = `https://fcm.googleapis.com/fcm/send/${require("crypto").randomBytes(16).toString("hex")}`;
+  const keys = { auth: "a".repeat(22), p256dh: "b".repeat(87) };
+  await Subscription.create({ userId: bob.id, endpoint, keys, sessionVersion: 0 });
+  // Model the pre-check finishing before the other account inserts its row.
+  const read = jest.spyOn(Subscription, "findOne").mockResolvedValueOnce(null);
+  const previous = { ...process.env };
+  Object.assign(process.env, { VAPID_PUBLIC_KEY: "test", VAPID_PRIVATE_KEY: "test", VAPID_SUBJECT: "mailto:test@example.com" });
+  try {
+    await call("post", "/push/subscribe", token(alice)).send({ endpoint, keys }).expect(409);
+    read.mockRestore();
+    expect(String((await Subscription.findOne({ endpoint })).userId)).toBe(bob.id);
+  } finally {
+    read.mockRestore();
+    process.env = previous;
+    await Subscription.deleteMany({ endpoint });
+  }
+});

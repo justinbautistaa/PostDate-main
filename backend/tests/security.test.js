@@ -23,6 +23,14 @@ describe("Request security", () => {
     await request(app).post("/change").set("Origin", "https://evil.example")
       .set("X-Postdate-Request", "1").send({}).expect(403);
   });
+  test("blocks cross-site mutations even without an Origin header", async () => {
+    await request(app).post("/change").set("Sec-Fetch-Site", "cross-site")
+      .set("X-Postdate-Request", "1").send({}).expect(403);
+  });
+  test("allows same-origin mutations", async () => {
+    await request(app).post("/change").set("Sec-Fetch-Site", "same-origin")
+      .set("X-Postdate-Request", "1").send({}).expect(200);
+  });
   test("allows the configured frontend origin and credentials", async () => {
     const res = await request(app).post("/change").set("Origin", "http://localhost:5173")
       .set("X-Postdate-Request", "1").send({}).expect(200);
@@ -90,6 +98,24 @@ describe("Production configuration", () => {
     expect(options).toMatchObject({ secure: true, httpOnly: true, sameSite: "strict", path: "/" });
     expect(options.domain).toBeUndefined();
   });
+  test("refuses placeholder signing secrets in production", () => {
+    process.env.JWT_SECRET = "test-secret-longer-than-thirty-two-bytes";
+    process.env.MONGO_URI = "mongodb://localhost/test";
+    process.env.NODE_ENV = "production";
+    process.env.CLIENT_URL = "https://postdate.example";
+    expect(validateEnvironment).toThrow(/placeholder JWT_SECRET/);
+  });
+  test.each(["https://postdate.example/path", "https://postdate.example/", "file:///", "*"])(
+    "refuses invalid frontend origin %s", origin => {
+      process.env.CLIENT_URL = origin;
+      expect(securityMiddleware).toThrow();
+    }
+  );
+  test("HTTP middleware independently refuses production HTTP origins", () => {
+    process.env.NODE_ENV = "production";
+    process.env.CLIENT_URL = "http://postdate.example";
+    expect(securityMiddleware).toThrow(/HTTPS/);
+  });
 });
 
 
@@ -116,6 +142,8 @@ test("production denies secret files and unknown webhook endpoints, with CSP", a
     for (const url of ["/.env", "/backend/.env", "/.git/config"]) {
       const res = await request(app).get(url).expect(404);
       expect(res.headers["content-security-policy"]).toMatch(/script-src 'self'/);
+      expect(res.headers["content-security-policy"]).toContain("base-uri 'none'");
+      expect(res.headers["content-security-policy"]).toContain("form-action 'self'");
       expect(res.headers["x-powered-by"]).toBeUndefined();
     }
     await request(app).post("/api/webhooks/unknown").set("X-Postdate-Request", "1").expect(404);

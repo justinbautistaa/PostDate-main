@@ -1,6 +1,6 @@
 # PostDate security and deployment
 
-Security hardening reviewed on October 6, 2026. This is a source-code review and local validation, not a penetration test or a certification that the hosted service is secure.
+Security hardening reviewed on October 18, 2026. See [the current review](SECURITY_REVIEW.md) for findings, fixes, current test counts and remaining deployment verification. Historical validation counts below describe earlier checks. This is a source-code review and local validation, not a penetration test or a certification that the hosted service is secure.
 
 ## Deployment requirements
 

@@ -217,6 +217,27 @@ test("shared rate counters survive store replacement, count atomically and hide 
   expect((await replacement.increment("192.0.2.1")).totalHits).toBe(1);
 });
 
+test("password attempts share an account budget across login and appeals and normalized emails", async () => {
+  const email = "budget@example.com";
+  for (let index = 0; index < 20; index++) {
+    const path = index % 2 ? "/appeals" : "/auth/login";
+    await call("post", path).set("X-Forwarded-For", `192.0.2.${index + 1}`)
+      .send({ email: index % 2 ? " BUDGET@example.com " : email, password: "wrong-password", message: "Please review my suspension." }).expect(401);
+  }
+  await call("post", "/auth/login").send({ email, password: "wrong-password" }).expect(429);
+  await call("post", "/auth/login").send({ email: "other@example.com", password: "wrong-password" }).expect(401);
+  const buckets = await require("../models/RequestBucket").find({}).lean();
+  expect(JSON.stringify(buckets)).not.toContain(email);
+});
+
+test("concurrent account attempts cannot evade the shared budget", async () => {
+  await require("../models/RequestBucket").init();
+  const results = await Promise.all(Array.from({ length: 25 }, () =>
+    call("post", "/auth/login").send({ email: "parallel@example.com", password: "wrong-password" })));
+  expect(results.filter(result => result.status === 401)).toHaveLength(20);
+  expect(results.filter(result => result.status === 429)).toHaveLength(5);
+});
+
 test("reviews require an active owned match, validate scores, prevent duplicates and respect privacy", async () => {
   const alice = await member("Alice"), bob = await member("Bob"), outsider = await member("Outsider");
   const Rating = require("../models/Rating");

@@ -1,6 +1,7 @@
 const express = require("express");
 const { requireAuth } = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiter");
+const { accountLimiter } = require("../middleware/accountLimiter");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { createReport, createAppeal } = require("../controllers/safetyController");
 
@@ -13,6 +14,6 @@ const router = express.Router();
 // Appeals get the tight authLimiter because they check a password, exactly
 // like log-in does. Reports ride on the general /api limiter from server.js.
 router.post("/reports", requireAuth, asyncHandler(createReport));
-router.post("/appeals", authLimiter, asyncHandler(createAppeal));
+router.post("/appeals", authLimiter, accountLimiter("password", 20), asyncHandler(createAppeal));
 
 module.exports = router;

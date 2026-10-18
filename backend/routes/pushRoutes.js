@@ -13,7 +13,9 @@ router.post("/push/subscribe", asyncHandler(async (req, res) => {
   if (existing && String(existing.userId) !== req.user.userId) return res.status(409).json({ message: "Disable notifications on this browser's previous account before enabling them here." });
   if (!existing && await Subscription.countDocuments({ userId: req.user.userId }) >= 10) return res.status(400).json({ message: "Notification device limit reached." });
   const user = await require("../models/User").findById(req.user.userId).select("sessionVersion").lean();
-  await Subscription.findOneAndUpdate({ endpoint }, { $set: { userId: req.user.userId, endpoint, keys: { auth: keys.auth, p256dh: keys.p256dh }, sessionVersion: user.sessionVersion || 0 } }, { upsert: true });
+  // Include ownership in the atomic write: a concurrent subscription must
+  // never transfer another account's endpoint after the preliminary read.
+  await Subscription.findOneAndUpdate({ endpoint, userId: req.user.userId }, { $set: { endpoint, keys: { auth: keys.auth, p256dh: keys.p256dh }, sessionVersion: user.sessionVersion || 0 } }, { upsert: true });
   res.sendStatus(204);
 }));
 router.post("/push/unsubscribe", asyncHandler(async (req, res) => {

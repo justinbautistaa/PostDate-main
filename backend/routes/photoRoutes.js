@@ -1,11 +1,12 @@
 const router = require("express").Router();
 const path = require("path");
 const { requireAuth } = require("../middleware/auth");
+const { generalLimiter } = require("../middleware/rateLimiter");
 const { asyncHandler } = require("../middleware/errorHandler");
 const Profile = require("../models/Profile"), User = require("../models/User"), Match = require("../models/Match");
 const { UPLOAD_DIR } = require("../utils/photoStorage");
 const { validFilename, isCloudStorage, cloudPhotoUrl } = require("../utils/cloudPhotos");
-router.get("/uploads/:filename", requireAuth, asyncHandler(async (req, res, next) => {
+router.get("/uploads/:filename", generalLimiter, requireAuth, asyncHandler(async (req, res, next) => {
   if (!validFilename(req.params.filename)) return res.sendStatus(404);
   const profile = await Profile.findOne({ photos: `/uploads/${req.params.filename}` }).select("userId discoverable").lean();
   if (!profile) return res.sendStatus(404);

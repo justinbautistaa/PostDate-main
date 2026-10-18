@@ -1,6 +1,7 @@
 const express = require("express");
 const { requireAuth } = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiter");
+const { accountLimiter } = require("../middleware/accountLimiter");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { createReport, createAppeal } = require("../controllers/safetyController");
 
@@ -41,6 +42,6 @@ router.get("/reports/mine", requireAuth, asyncHandler(async (req, res) => {
   // are deliberately excluded from this member-facing response.
   res.json({ reports: page.map(row => ({ id: String(row._id), reason: row.reason, description: row.description || "", targetType: row.targetType, status: row.status, createdAt: row.createdAt, updatedAt: row.updatedAt, resolvedAt: row.resolvedAt })), nextCursor: !req.query.ids && rows.length > 20 ? String(page[page.length - 1]._id) : null });
 }));
-router.post("/appeals", authLimiter, asyncHandler(createAppeal));
+router.post("/appeals", authLimiter, accountLimiter("password", 20), asyncHandler(createAppeal));
 
 module.exports = router;

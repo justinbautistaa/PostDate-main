@@ -13,6 +13,7 @@ const { upload, MAX_FILES } = require("../middleware/upload");
 
 const { requireAuth } = require("../middleware/auth");
 const { validateRequest } = require("../middleware/security");
+const { accountLimiter } = require("../middleware/accountLimiter");
 
 const recovery = require("../controllers/recoveryController");
 
@@ -32,15 +33,15 @@ const router = express.Router();
 // request (multer only engages for multipart content types), so this
 // doesn't change anything for a signup sent without photos.
 router.post("/signup", authLimiter, upload.array("photos", MAX_FILES), validateRequest, asyncHandler(register));
-router.post("/auth/login", authLimiter, asyncHandler(login));
-router.post("/verify/send", authLimiter, asyncHandler(sendVerificationCode));
-router.post("/verify/confirm", authLimiter, asyncHandler(verifyCode));
+router.post("/auth/login", authLimiter, accountLimiter("password", 20), asyncHandler(login));
+router.post("/verify/send", authLimiter, accountLimiter("verification-send", 5), asyncHandler(sendVerificationCode));
+router.post("/verify/confirm", authLimiter, accountLimiter("verification-confirm", 20), asyncHandler(verifyCode));
 
 router.get("/auth/session", requireAuth, session);
 router.post("/auth/logout", requireAuth, asyncHandler(logout));
 
-router.post("/auth/recovery/request", authLimiter, asyncHandler(recovery.requestRecovery));
-router.post("/auth/recovery/verify", authLimiter, asyncHandler(recovery.verifyRecovery));
+router.post("/auth/recovery/request", authLimiter, accountLimiter("recovery-send", 5), asyncHandler(recovery.requestRecovery));
+router.post("/auth/recovery/verify", authLimiter, accountLimiter("recovery-verify", 20), asyncHandler(recovery.verifyRecovery));
 router.post("/auth/recovery/reset", authLimiter, asyncHandler(recovery.resetPassword));
 
 module.exports = router;

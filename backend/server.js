@@ -24,6 +24,7 @@ function createApp() {
     "script-src": ["'self'"], "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com"], "img-src": ["'self'", "blob:", "data:", ...(isCloudStorage() ? [`https://res.cloudinary.com/${cloudConfig().cloud}/`] : [])],
     "connect-src": ["'self'"], "object-src": ["'none'"], "frame-ancestors": ["'none'"],
+    "base-uri": ["'none'"], "form-action": ["'self'"],
   } } }));
   app.get("/healthz", (req, res) => {
     const ready = mongoose.connection.readyState === 1;
@@ -70,6 +71,7 @@ async function start() {
   await startupStep("MongoDB connection", connectDB);
   await startupStep("photo storage", ensureUploadDir);
   await startupStep("rate counter indexes", () => require("./models/RateCounter").init());
+  await startupStep("account rate indexes", () => require("./models/RequestBucket").init());
   await startupStep("swipe indexes", () => require("./models/Swipe").init());
   await startupStep("match indexes", () => require("./models/Match").init());
   await startupStep("message indexes", () => require("./models/Message").init());

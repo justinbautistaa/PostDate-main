@@ -1,14 +1,27 @@
 const cors = require("cors");
 const clientOrigin = () => process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:5173";
 
+function validatedOrigin() {
+  const origin = clientOrigin();
+  const url = new URL(origin);
+  if (!["http:", "https:"].includes(url.protocol) || url.origin !== origin) {
+    throw new Error("CLIENT_URL must be an exact HTTP or HTTPS origin without a trailing slash");
+  }
+  if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
+    throw new Error("Production CLIENT_URL must be an HTTPS origin");
+  }
+  return origin;
+}
+
 function validateEnvironment() {
   if (!process.env.JWT_SECRET || Buffer.byteLength(process.env.JWT_SECRET) < 32) {
     throw new Error("JWT_SECRET must contain at least 32 bytes of random secret material");
   }
   if (!process.env.MONGO_URI) throw new Error("MONGO_URI is required");
   if (process.env.NODE_ENV === "production") {
-    if (new URL(clientOrigin()).protocol !== "https:") {
-      throw new Error("Production CLIENT_URL must be an HTTPS origin");
+    validatedOrigin();
+    if (/replace-with|test-secret|change-?me|your[-_]secret/i.test(process.env.JWT_SECRET)) {
+      throw new Error("Replace the placeholder JWT_SECRET before production startup");
     }
     if (!/^[a-f\d]{64}$/i.test(process.env.MFA_ENCRYPTION_KEY || "")) throw new Error("Configure a stable MFA_ENCRYPTION_KEY before production startup");
     if (!require("../utils/verification").emailConfigured()) {
@@ -23,15 +36,15 @@ function validateEnvironment() {
 }
 
 function securityMiddleware() {
-  const origin = clientOrigin();
-  if (new URL(origin).origin !== origin) throw new Error("CLIENT_URL must be an exact origin without a trailing slash");
+  const origin = validatedOrigin();
   const originGuard = (req, res, next) => {
     if (req.headers.origin && req.headers.origin !== origin) {
       return res.status(403).json({ message: "Origin is not allowed" });
     }
     // This non-simple header forces browsers to preflight every mutation,
     // including login. Hostile forms and cross-origin scripts cannot submit it.
-    if (!["GET", "HEAD", "OPTIONS"].includes(req.method) && req.get("X-Postdate-Request") !== "1") {
+    if (!["GET", "HEAD", "OPTIONS"].includes(req.method) &&
+        (req.get("X-Postdate-Request") !== "1" || req.get("Sec-Fetch-Site") === "cross-site")) {
       return res.status(403).json({ message: "Request verification required" });
     }
     next();
