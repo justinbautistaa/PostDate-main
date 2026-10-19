@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReportForm from "../ReportForm";
 import ProfilePhoto from "../ProfilePhoto";
 
@@ -24,6 +24,12 @@ export default function ProfileModal({ profile, onClose, onLike, onPass }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    dialogRef.current?.querySelector("button")?.focus();
+    return () => { if (previousFocus?.isConnected) previousFocus.focus(); };
+  }, []);
   async function act(callback) {
     if (busy) return;
     setBusy(true); setError("");
@@ -34,7 +40,15 @@ export default function ProfileModal({ profile, onClose, onLike, onPass }) {
   // Esc closes it, and background scroll is locked while it's open.
   useEffect(() => {
     function onKey(e) {
-      if (e.key === "Escape") onClose?.();
+      // The report form owns its own keyboard handling while it is open.
+      if (reportOpen) return;
+      if (e.key === "Escape") { e.preventDefault(); onClose?.(); }
+      if (e.key === "Tab") {
+        const controls = Array.from(dialogRef.current?.querySelectorAll("button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex='0']") || []);
+        const first = controls[0], last = controls[controls.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      }
     }
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
@@ -43,7 +57,7 @@ export default function ProfileModal({ profile, onClose, onLike, onPass }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [onClose]);
+  }, [onClose, reportOpen]);
 
   if (!profile) return null;
   const { name, age, distanceMi, gender, bio, photoUrl } = profile;
@@ -177,7 +191,7 @@ export default function ProfileModal({ profile, onClose, onLike, onPass }) {
         }
       `}</style>
 
-      <div className="pmodal" role="dialog" aria-modal="true" aria-label={`${name}'s profile`}>
+      <div ref={dialogRef} className="pmodal" role="dialog" aria-modal="true" aria-label={`${name}'s profile`}>
         <button type="button" className="pmodal-close" onClick={onClose} aria-label="Close">
           ✕
         </button>
