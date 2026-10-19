@@ -69,6 +69,7 @@ function createApp() {
 async function start() {
   await startupStep("environment configuration", validateEnvironment);
   await startupStep("MongoDB connection", connectDB);
+  await startupStep("optional demo dataset", () => require("./utils/seedDemoOnce").seedDemoOnce());
   await startupStep("photo storage", ensureUploadDir);
   await startupStep("rate counter indexes", () => require("./models/RateCounter").init());
   await startupStep("account rate indexes", () => require("./models/RequestBucket").init());

@@ -235,13 +235,17 @@ async function main() {
         : clampDate(joinedAt + int(1, 20) * DAY),
     });
   }
-  const members = await User.insertMany(memberDocs);
+  const members = await User.insertMany(memberDocs.map(doc => ({
+    ...doc, emailVerifiedAt: doc.isVerified ? doc.createdAt : null,
+  })));
 
   await Profile.insertMany(
     members.map((m) => {
       const [city, country] = pick(CITIES);
       return {
         userId: m._id,
+        profileName: `Demo ${m.firstName}`,
+        discoverable: false,
         dateOfBirth: new Date(Date.UTC(NOW_YEAR() - int(19, 48), int(0, 11), int(1, 28))),
         gender: weighted([["female", 42], ["male", 40], ["nonbinary", 10], ["self-describe", 3], ["prefer-not-to-say", 5]]),
         bio: pick(BIOS),
@@ -270,6 +274,7 @@ async function main() {
     matchDocs.push({
       user1: a._id,
       user2: b._id,
+      pairKey: key,
       status: weighted([["active", 88], ["unmatched", 9], ["blocked", 3]]),
       createdAt: new Date(earliest + int(0, Math.max(0, Math.floor((NOW - HOUR - earliest) / HOUR))) * HOUR * 0.5),
     });
@@ -328,7 +333,7 @@ async function main() {
     const done = status === "resolved" || status === "dismissed";
     return {
       reporterId: reporter._id,
-      targetType: chance(0.78) ? "user" : "message",
+      targetType: "user",
       targetId: new mongoose.Types.ObjectId(),
       reportedUserId: reported._id,
       reason,
