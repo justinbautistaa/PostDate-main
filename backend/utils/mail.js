@@ -39,4 +39,14 @@ async function verifyConnection() {
   try { await transport.verify(); }
   finally { transport.close(); }
 }
-module.exports = { sendCode, verifyConnection };
+async function sendOperationalAlert(email, subject, text) {
+  if (!require("./validators").isValidEmail(email) || /[\r\n]/.test(email) ||
+      typeof subject !== "string" || /[\r\n]/.test(subject) || subject.length > 160 || typeof text !== "string") {
+    throw new Error("Invalid operational alert");
+  }
+  const config = mailConfig();
+  const transport = nodemailer.createTransport(config.transport);
+  try { await transport.sendMail({ from: config.from, to: email, subject, text }); }
+  finally { transport.close(); }
+}
+module.exports = { sendCode, verifyConnection, sendOperationalAlert };

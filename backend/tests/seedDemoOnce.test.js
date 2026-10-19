@@ -32,3 +32,17 @@ test("an incomplete run stops without resetting or duplicating records", async (
   await expect(seedDemoOnce()).rejects.toThrow(/manual review/);
   expect(await User.countDocuments()).toBe(67);
 });
+test("the full demo dataset survives encrypted backup and restore into a separate empty test database", async () => {
+  const { snapshot, encrypt, decrypt, restoreToTestDatabase } = require("../utils/backup");
+  const key = require("crypto").randomBytes(32);
+  const source = mongoose.connection.db;
+  const data = decrypt(encrypt(await snapshot(source), key), key);
+  const target = mongoose.connection.getClient().db("postdate_restore_test");
+  await restoreToTestDatabase(target, data);
+  for (const collection of data.collections) {
+    expect(await target.collection(collection.name).countDocuments()).toBe(collection.documents.length);
+  }
+  expect(await target.collection("users").countDocuments()).toBe(67);
+  expect(await target.collection("matches").countDocuments()).toBe(110);
+  expect(await target.collection("reports").countDocuments()).toBe(28);
+});

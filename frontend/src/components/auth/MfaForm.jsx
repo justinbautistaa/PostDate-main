@@ -46,7 +46,10 @@ export default function MfaForm({ pending, onComplete, onCancel }) {
         <p>On the same phone? In Google Authenticator, tap + → Enter a setup key. Set Account name to PostDate, paste the full key below into Your key, select Time-based, and tap Add.</p>
         <code className="mfa-secret">{pending.secret}</code>
       </details>
-    </> : <p>Enter the six-digit code from your authenticator, or one unused recovery code.</p>}
+    </> : <><p>Enter the six-digit code from your authenticator, or one unused recovery code.</p>
+      <details><summary>Lost your authenticator and recovery codes?</summary>
+        <p>Contact the site administrator for an ownership-verified account recovery. Resetting your password does not remove authenticator security. Never send anyone your password or authentication codes.</p>
+      </details></>}
     <label htmlFor="mfa-code">Authentication code</label><input id="mfa-code" autoComplete="one-time-code" autoFocus maxLength={32} value={code} onChange={event => setCode(event.target.value)} required />
     {error && <p role="alert">{error}</p>}
     <div className="mfa-actions"><button type="button" disabled={busy} onClick={onCancel}>Cancel</button><button className="public-primary" disabled={busy}>{busy ? "Verifying…" : "Verify"}</button></div>

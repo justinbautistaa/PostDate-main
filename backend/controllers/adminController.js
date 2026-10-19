@@ -248,6 +248,7 @@ async function listUsers(req, res) {
       id,
       name: fullName(u),
       email: isAdmin ? u.email : maskEmail(u.email),
+      isDemo: /@demo\.postdate\.test$/i.test(u.email || ""),
       role: u.role,
       status: suspended ? "suspended" : "active",
       verified: Boolean(u.isVerified),

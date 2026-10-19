@@ -194,6 +194,7 @@ export default function UsersSection({ role, onChanged, managedRole, teamOnly = 
                             <div>
                               <p className="ad-person-name">
                                 {u.name}
+                                {u.isDemo && <Badge tone="muted">Demo account</Badge>}
                                 {u.isSelf && <span className="ad-you"> (you)</span>}
                               </p>
                               <p className="ad-person-sub">{u.email}</p>

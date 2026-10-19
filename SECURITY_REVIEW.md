@@ -39,4 +39,6 @@ Tests run against disposable local MongoDB instances and mocked external provide
 
 ## Deployment verification still required
 
+Follow-up October 19, 2026: 301 backend tests across 24 suites and 110 frontend tests across 26 suites passed. Added independently verified operator member-MFA recovery, a preview-first marker-scoped demo cleanup tool, admin demo labels, transition-only operational email monitoring, and a full demo-dataset encrypted restore regression. The frontend production build passed. A monitoring delivery test was accepted by the configured sender; inbox placement is unverified. A local Codex monitor is scheduled every 15 minutes and requires the workstation/app to remain available. No real member MFA was reset and no live demo records were removed. See OPERATIONS.md for commands and limitations.
+
 These local edits are not deployed. Verify the deployed revision, HTTPS/cookies, database authentication/TLS and network restrictions, least-privilege provider credentials, trusted ingress/proxy topology, real email delivery, cloud photo migration/invalidation, backup restoration off-host, monitoring, and retention/support procedures. Never infer those settings from passing unit tests or a public health endpoint. The project's read-only deployment smoke check does not validate authenticated accounts or provider access controls.
