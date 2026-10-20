@@ -14,3 +14,9 @@ No profile content, privacy choice, password or authenticator was changed. No me
 
 ## Follow-up — October 20, 2026
 The affected discovery photo returned 404. A scoped live diagnostic confirmed a valid gallery/avatar reference, but no authenticated or legacy public Cloudinary asset. The exact original WebP existed in local uploads. After explicit user approval, it was restored as an authenticated cloud asset; the signed-in live browser confirmed successful rendering. No privacy check was relaxed. The temporary diagnostic setting was disabled. Bounded photo retries and discovery-modal keyboard focus management were also deployed; 113 frontend tests and the production build passed, plus two diagnostic tests. Image proof is retained in ignored backend/.cache/photo-restored.png.
+
+## Staff browser check — October 20, 2026
+
+Using the owner's signed-in staff session on the Render site, the staff overview, user list, pending reports, appeals, ratings, member follow-ups and community notices all loaded. The user list masked emails. The account's Settings page reported authenticator MFA enabled. Browser warning/error inspection returned no entries at check time. Visiting the admin-only page redirected the staff session to the public home page; returning to /staff succeeded. No moderation action, privacy setting, profile field, password or authenticator was changed.
+
+This checks rendered pages and the resulting role redirect, not an adversarial test of every staff API. The MFA challenge was completed by the owner before inspection and was not directly observed or replay-tested. Public signup/email verification and mutual discovery matching still require a separate controlled acceptance run.
