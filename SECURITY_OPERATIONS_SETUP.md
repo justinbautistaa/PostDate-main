@@ -1,6 +1,10 @@
 # PostDate production security operations setup
 
-Status: independent public health checks are active and a one-time encrypted production database backup and isolated restore drill have succeeded. Recurring backups and media recovery remain pending.
+Status: independent public health checks are active. Encrypted database and media archival, a cloud-download integrity check and an isolated database restore drill have succeeded. Daily desktop backups are scheduled for 22:00 Asia/Manila; the computer, Codex app, Drive connection and database access must be available. This is not always-on backup coverage.
+
+October 20 follow-up: the full encrypted archive includes five authenticated Cloudinary originals; a sixth database-backed photo is already preserved in the database snapshot. All downloaded media checksums verified, and the cloud archive matched its local SHA-256. The isolated database restore again matched records and index keys/unique flags. Media archival does not automatically re-upload historical photos or roll back a live account. The job refuses missing or unknown references and bounds total downloaded Cloudinary media at 24 MiB (the encryption format also limits serialized data to 64 MiB). Increasing either limit requires memory/recovery review.
+
+Eight bounded live acceptance checks passed using two randomly named, hidden disposable members and generated test images: password login; staff-route denial; hidden-profile like rejection; matched-account messaging; reporter isolation; photo upload/avatar/delete; blocked-message denial; logout revocation. Account and match setup used explicit database fixtures, not public signup or mutual discovery matching. Only test-owned records/images were removed afterward. Signup/email delivery, mutual discovery matching, staff MFA and browser interactions remain outside this run. Detailed results are retained only in ignored local cache files.
 
 Update — October 20, 2026, 21:16 Asia/Manila: the first production database backup is now created and stored privately in Google Drive. The downloaded cloud copy matches the local encrypted file SHA-256. Its 19 collections and 514 documents were restored into a disposable local loopback-only `postdate_restore_test` database; serialized records and index keys/unique flags matched. The test database was stopped and removed by the temporary database helper. Drive metadata showed owner-only access (`shared: false`). Only encrypted bytes were uploaded; the encryption key remained local. The current configuration uses a process-only public DNS resolver because the system resolver refused SRV queries. An Atlas IP access entry was added by the user before this successful run. This is a verified one-time database backup and recovery drill, not an activated recurring backup job or a backup of Cloudinary media. Separate key custody in a password manager remains the owner's responsibility.
 
@@ -41,8 +45,8 @@ Use two disposable member accounts and one disposable staff account approved for
 Google Drive's backup folder and uploaded encrypted file were verified as private. Keep file identifiers and detailed verification records in the ignored local backup report. Connector access alone does not create an unattended upload credential for a scheduled runner.
 
 - Separate key custody in a password manager.
-- A scheduled backup runner with narrowly scoped database and private storage access.
-- A separate recovery plan for Cloudinary media.
+- An always-on backup runner if desktop-dependent scheduling is insufficient, with narrowly scoped database and private storage access.
+- A provider-side media restore procedure reviewed before overwriting any current images.
 - Disposable live test accounts accessible through the normal login flow.
 
 After activation, perform a recovery drill and alert-delivery test, then record the verified recovery time, recovery point, responsible operator and test date.

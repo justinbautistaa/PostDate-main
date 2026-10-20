@@ -1,0 +1,25 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env.backup'), quiet: true });
+require('dotenv').config({ path: path.join(__dirname, '../.env'), quiet: true });
+const mongoose = require('mongoose');
+const fs = require('fs/promises');
+const crypto = require('crypto');
+const { snapshot, encrypt, decrypt, keyFromEnvironment } = require('../utils/backup');
+const { collectMedia } = require('../utils/backupMedia');
+(async () => {
+  const key = keyFromEnvironment();
+  const uri = process.env.MONGO_URI || '';
+  if (!uri || /localhost|127\.0\.0\.1|\[::1\]/i.test(uri)) throw new Error('Production configuration required');
+  if (process.env.BACKUP_DNS_SERVERS) require('dns').setServers(process.env.BACKUP_DNS_SERVERS.split(','));
+  await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
+  const data = await snapshot(mongoose.connection.db);
+  data.media = await collectMedia(data);
+  const encrypted = encrypt(data, key);
+  const verified = decrypt(encrypted, key);
+  if (verified.media.some(p => crypto.createHash('sha256').update(Buffer.from(p.contentBase64, 'base64')).digest('hex') !== p.sha256)) throw new Error('Media verification failed');
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const output = path.resolve(__dirname, '../../backups', `postdate-full-${stamp}.encrypted`);
+  await fs.mkdir(path.dirname(output), { recursive: true });
+  await fs.writeFile(output, encrypted, { flag: 'wx', mode: 0o600 });
+  console.log(JSON.stringify({ output, collections: data.collections.length, documents: data.collections.reduce((n,c) => n+c.documents.length, 0), photos: data.media.length, bytes: encrypted.length, sha256: crypto.createHash('sha256').update(encrypted).digest('hex') }));
+})().catch(() => { console.error('Production backup failed. No records, media URLs or credentials were logged.'); process.exitCode = 1; }).finally(() => mongoose.disconnect());
