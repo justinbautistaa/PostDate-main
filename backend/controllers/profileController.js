@@ -151,11 +151,14 @@ async function deletePhoto(req, res) {
   // Drop the DB reference first: if the disk delete below fails for some
   // reason other than the file already being gone, an orphan file on disk
   // is a much smaller problem than a photo the UI thinks exists but 404s.
-  profile.photos = profile.photos.filter((p) => p !== publicPath);
-  await profile.save();
+  const updated = await Profile.findOneAndUpdate({
+    userId: req.user.userId, photos: publicPath, avatar: { $ne: publicPath },
+    "photos.1": { $exists: true },
+  }, { $pull: { photos: publicPath } }, { new: true });
+  if (!updated) return res.status(409).json({ message: "Your photos changed. Refresh and try again." });
   await deletePhotoFile(publicPath);
 
-  res.json({ photos: profile.photos });
+  res.json({ photos: updated.photos });
 }
 
 /**
@@ -177,10 +180,11 @@ async function setAvatar(req, res) {
     return res.status(400).json({ message: "Pick one of your own photos" });
   }
 
-  profile.avatar = photo;
-  await profile.save();
+  const updated = await Profile.findOneAndUpdate({ userId: req.user.userId, photos: photo },
+    { $set: { avatar: photo } }, { new: true });
+  if (!updated) return res.status(409).json({ message: "That photo is no longer available. Refresh and try again." });
 
-  res.json({ avatar: profile.avatar });
+  res.json({ avatar: updated.avatar });
 }
 
 module.exports = { getTags, saveTags, saveLookingFor, uploadPhotos, deletePhoto, setAvatar };

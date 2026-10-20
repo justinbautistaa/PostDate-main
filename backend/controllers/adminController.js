@@ -324,7 +324,7 @@ async function setUserRole(req, res) {
   const role = req.body?.role;
   if (!ROLES.includes(role)) return res.status(400).json({ message: "Role must be user, moderator or admin" });
 
-  if (req.params.id === req.user.userId) {
+  if (req.params.id.toLowerCase() === req.user.userId.toLowerCase()) {
     return res.status(403).json({ message: "You can't change your own role" });
   }
   const target = await User.findById(req.params.id).select("_id role firstName lastName");

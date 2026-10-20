@@ -161,3 +161,35 @@ test('database execution limits return a retryable response',async()=>{
  const viewer=await account(),option=jest.fn().mockRejectedValue(Object.assign(new Error('Timed out'),{code:50}));jest.spyOn(Profile,'aggregate').mockReturnValueOnce({option});
  await request(app).get('/api/discover').set(auth(viewer)).expect(503);expect(option).toHaveBeenCalledWith({maxTimeMS:5000,allowDiskUse:false});
 });
+
+test('deleting a photo cannot remove a concurrently selected avatar',async()=>{
+ const user=await account(),gallery=(await upload(user,2)).body.photos;
+ const photo=gallery[1],original=Profile.findOneAndUpdate.bind(Profile);
+ jest.spyOn(Profile,'findOneAndUpdate').mockImplementationOnce(async(...args)=>{
+   await Profile.updateOne({userId:user.id},{$set:{avatar:photo}});
+   return original(...args);
+ });
+ await request(app).delete('/api/profile/photos/'+path.basename(photo)).set(auth(user)).expect(409);
+ const profile=await Profile.findOne({userId:user.id});
+ expect(profile.avatar).toBe(photo);expect(profile.photos).toContain(photo);
+ await expect(fs.access(path.join(UPLOAD_DIR,path.basename(photo)))).resolves.toBeUndefined();
+});
+
+test('avatar selection cannot reference a concurrently removed photo',async()=>{
+ const user=await account(),gallery=(await upload(user,2)).body.photos;
+ const photo=gallery[1],original=Profile.findOneAndUpdate.bind(Profile);
+ jest.spyOn(Profile,'findOneAndUpdate').mockImplementationOnce(async(...args)=>{
+   await Profile.updateOne({userId:user.id},{$pull:{photos:photo}});
+   return original(...args);
+ });
+ await request(app).put('/api/profile/avatar').set(auth(user)).send({photo}).expect(409);
+ const profile=await Profile.findOne({userId:user.id});
+ expect(profile.avatar).toBe(gallery[0]);expect(profile.photos).not.toContain(photo);
+});
+
+test('parallel photo deletions preserve the remaining gallery without lost updates',async()=>{
+ const user=await account(),gallery=(await upload(user,3)).body.photos;
+ await Promise.all(gallery.slice(1).map(photo=>request(app).delete('/api/profile/photos/'+path.basename(photo)).set(auth(user)).expect(200)));
+ const profile=await Profile.findOne({userId:user.id});
+ expect(profile.photos).toEqual([gallery[0]]);expect(profile.avatar).toBe(gallery[0]);
+});

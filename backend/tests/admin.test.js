@@ -416,6 +416,9 @@ describe("changing roles", () => {
     const res = await request(app).patch(`/api/admin/users/${admin._id}/role`).set(as(admin)).send({ role: "user" });
     expect(res.status).toBe(403);
     expect((await User.findById(admin._id)).role).toBe("admin");
+    await request(app).patch(`/api/admin/users/${String(admin._id).toUpperCase()}/role`)
+      .set(as(admin)).send({ role: "user" }).expect(403);
+    expect((await User.findById(admin._id)).role).toBe("admin");
   });
 });
 
