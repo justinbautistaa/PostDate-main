@@ -61,7 +61,9 @@ export default function LoginForm({ defaultEmail = "", notice = "", onSubmit, on
          or no such account — reads the same, so the message still can't be
          used to find out which emails have accounts. */
       (err) => err?.response?.status === 503 ? "Login security is temporarily unavailable. Contact the site administrator."
-        : err?.response?.status === 429 ? "Too many login attempts. Please wait before trying again."
+        : err?.response?.status === 429 ? (Number.isFinite(err.response.data?.retryAfter) && err.response.data.retryAfter > 0
+          ? `Too many incorrect login attempts. Try again in ${Math.ceil(err.response.data.retryAfter / 60)} minute(s).`
+          : "Too many login attempts. Please wait before trying again.")
         : err?.response?.data?.message === "This account has been deactivated"
         ? "This account has been deactivated. Contact the community team."
         : err?.response?.status === 403 ? "Verify your email before logging in" : "Wrong email or password"

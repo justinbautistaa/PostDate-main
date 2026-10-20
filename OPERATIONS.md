@@ -1,5 +1,9 @@
 # Account recovery and operations
 
+## Incorrect-password throttling
+
+Login allows at most five incorrect email/password attempts per normalized email in a 15-minute window. Later requests return HTTP 429 with `Retry-After` and a retry duration displayed by the login form. The remaining window can be shorter than fifteen minutes. Known and unknown emails use the same budget and responses. MongoDB stores only a keyed digest and counters; atomic reservations prevent parallel requests from bypassing the limit. Correct password checks release their reservation before continuing to MFA or account-status checks. They do not erase earlier failures in the same window. Existing shared login/appeal and per-IP limits continue to apply. No permanent account suspension or MFA change occurs.
+
 ## Member MFA recovery
 
 Members should first use an unused MFA recovery code. Password recovery intentionally preserves MFA. If both factors and recovery codes are lost, an operator must independently verify ownership through an established support process. Access to an inbox, an account name or a password alone is not sufficient evidence to remove the second factor. Record the evidence in the private support case; do not store identity documents, passwords or codes in this repository.

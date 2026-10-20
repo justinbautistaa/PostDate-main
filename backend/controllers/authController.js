@@ -180,16 +180,25 @@ async function register(req, res) {
  * different message for that one specifically.
  */
 async function login(req, res) {
+  let attempt;
   try {
     const { email, password } = req.body ?? {};
     if (!isValidEmail(email) || !isNonEmptyString(password) || Buffer.byteLength(password, "utf8") > 72) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
+    attempt = await require('../utils/passwordAttempts').reservePasswordAttempt(email);
+    if (!attempt.allowed) {
+      res.set('Retry-After', String(attempt.retryAfter));
+      return res.status(429).json({ message: 'Too many incorrect login attempts. Please try again in ' + Math.ceil(attempt.retryAfter / 60) + ' minute(s).', retryAfter: attempt.retryAfter });
+    }
     const user = await User.findOne({ email: email.trim().toLowerCase() }).select("+passwordHash +sessionVersion +deletionRequestedAt");
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      attempt = null; // Keep this reservation as a failed credential attempt.
       return res.status(401).json({ message: "Wrong email or password" });
     }
+    await attempt.release();
+    attempt = null; // Correct passwords, including those leading to MFA, do not consume the failure budget.
     if (!user.isActive || user.deletionRequestedAt) {
       return res.status(403).json({ message: "This account has been deactivated" });
     }
@@ -204,6 +213,7 @@ async function login(req, res) {
     setSession(res, user);
     return res.json({ userId: user._id, role: user.role });
   } catch (err) {
+    if (attempt?.allowed) await attempt.release().catch(() => {});
     console.error("[auth] login failed");
     return res.status(500).json({ message: "Could not log in" });
   }
