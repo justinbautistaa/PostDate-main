@@ -20,3 +20,11 @@ The missing discovery photo was restored from its exact local original after exp
 - Production analytics include the user-requested synthetic demonstration data. Demo labels identify sample accounts; remove the tracked dataset after the demonstration or use a separate demo deployment when evaluating real usage.
 
 These findings are a scoped code review and regression check, not a guarantee against all vulnerabilities or production failures.
+
+## Render inspection — October 20, 2026, 12:34 UTC
+
+The deployed service srv-db8s614s728c73aspirg is live on commit eb5e1589af6faef7b964a07f2ceca50eb2bd27e2 (deployment dep-dbblmrm7bikc739001r0). The public deployment smoke check passed health readiness, frontend routes/assets, unauthenticated API rejection, untrusted-origin rejection and unknown-API handling. Recent startup logs confirm database connection and port 10000 binding; the queried error logs returned no entries. These observations do not prove every member workflow works.
+
+Available current metrics showed about 82.5 MiB memory against a 512 MiB limit and 0.0022 CPU usage. HTTP request-count and latency metrics returned no data, so no production latency conclusion is drawn. The browser rendered the login page; an authenticated session was not available for further member testing.
+
+No new Render fault was reproduced in this inspection, and no deployment/settings changes were made. Operational gaps remain: the service uses the free plan, monitoring depends on the desktop being available, and production backup/restore is not verified. Concurrent image uploads have not been load-tested against the free instance memory limit.

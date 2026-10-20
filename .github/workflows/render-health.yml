@@ -1,0 +1,29 @@
+name: Render public health
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/render-health.yml'
+      - 'backend/scripts/checkPublicHealth.js'
+      - 'backend/utils/publicHealthCheck.js'
+permissions:
+  contents: read
+concurrency:
+  group: render-public-health
+  cancel-in-progress: false
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Check live Render readiness
+        run: node backend/scripts/checkPublicHealth.js

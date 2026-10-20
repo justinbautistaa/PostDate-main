@@ -21,7 +21,7 @@ it("opens an older conversation directly from a notification without paging thro
   render(<MemoryRouter initialEntries={["/messages?match=older-match"]}><Messages /></MemoryRouter>);
   expect(await screen.findByRole("textbox", { name: "Message to Older match" })).toBeTruthy();
   expect(chat.getConversation).toHaveBeenCalledWith("older-match");
-  expect(chat.getMessages).toHaveBeenCalledWith("older-match");
+  await waitFor(() => expect(chat.getMessages).toHaveBeenCalledWith("older-match"));
 });
 it("explains unavailable notification targets without displaying another conversation", async () => {
   render(<MemoryRouter initialEntries={["/messages?match=missing-match"]}><Messages /></MemoryRouter>);
