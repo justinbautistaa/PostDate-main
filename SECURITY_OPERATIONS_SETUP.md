@@ -1,6 +1,8 @@
 # PostDate production security operations setup
 
-Status: prepared for hosting selection. No production data has been copied and no new service has been purchased or deployed.
+Status: independent public health checks are active and a one-time encrypted production database backup and isolated restore drill have succeeded. Recurring backups and media recovery remain pending.
+
+Update — October 20, 2026, 21:16 Asia/Manila: the first production database backup is now created and stored privately in Google Drive. The downloaded cloud copy matches the local encrypted file SHA-256. Its 19 collections and 514 documents were restored into a disposable local loopback-only `postdate_restore_test` database; serialized records and index keys/unique flags matched. The test database was stopped and removed by the temporary database helper. Drive metadata showed owner-only access (`shared: false`). Only encrypted bytes were uploaded; the encryption key remained local. The current configuration uses a process-only public DNS resolver because the system resolver refused SRV queries. An Atlas IP access entry was added by the user before this successful run. This is a verified one-time database backup and recovery drill, not an activated recurring backup job or a backup of Cloudinary media. Separate key custody in a password manager remains the owner's responsibility.
 
 Free independent health checks: `.github/workflows/render-health.yml` runs the public Render readiness check approximately every fifteen minutes and can be started manually. It needs no secrets, database access or package installation. A failed check fails the workflow. GitHub Actions notification preferences control workflow-failure emails; delivery to the operational Gmail recipient is not configured by this workflow. It does not send the existing transition emails, preserve outage state or inspect deployment status. The desktop monitor remains enabled for those alerts. GitHub schedules can be delayed, and public-repository schedules stop after 60 days without repository activity. This is best-effort coverage, not a guaranteed monitoring SLA.
 
@@ -36,9 +38,11 @@ Use two disposable member accounts and one disposable staff account approved for
 
 ## Activation inputs still needed
 
-- Approved backup destination and separate key custody.
-- Approved always-on runner, budget and secret storage.
-- Production read-only database access for backup and an isolated restore destination.
+Google Drive's backup folder and uploaded encrypted file were verified as private. Keep file identifiers and detailed verification records in the ignored local backup report. Connector access alone does not create an unattended upload credential for a scheduled runner.
+
+- Separate key custody in a password manager.
+- A scheduled backup runner with narrowly scoped database and private storage access.
+- A separate recovery plan for Cloudinary media.
 - Disposable live test accounts accessible through the normal login flow.
 
 After activation, perform a recovery drill and alert-delivery test, then record the verified recovery time, recovery point, responsible operator and test date.
