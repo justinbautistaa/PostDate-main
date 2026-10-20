@@ -68,7 +68,20 @@ function unsafeKeys(value, depth = 0) {
 }
 
 function validateRequest(req, res, next) {
-  if (unsafeKeys(req.body) || unsafeKeys(req.query)) {
+  const query = req.query || {};
+  const integerRanges = { page: [1, 10000], limit: [1, 100], minAge: [18, 120], maxAge: [18, 120], days: [1, 365] };
+  const invalidQuery = Object.entries(query).some(([key, value]) => {
+    // No current API accepts array/object query values. Reject duplicate keys
+    // rather than letting regex/Number coercion accept a one-element array.
+    if (typeof value !== 'string') return true;
+    if (Object.hasOwn(integerRanges, key)) {
+      const [min, max] = integerRanges[key];
+      return !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) < min || Number(value) > max;
+    }
+    if (key === 'maxDistance') return !/^\d+(?:\.\d+)?$/.test(value) || !Number.isFinite(Number(value)) || Number(value) > 10000;
+    return false;
+  });
+  if (invalidQuery || Array.isArray(req.body) || (req.body != null && typeof req.body !== 'object') || unsafeKeys(req.body) || unsafeKeys(query)) {
     return res.status(400).json({ message: "Invalid input" });
   }
   next();

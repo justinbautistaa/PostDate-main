@@ -12,6 +12,15 @@ beforeEach(() => {
   vi.resetAllMocks();
   QRCode.toDataURL.mockResolvedValue("data:image/png;base64,test");
 });
+it('keeps enrollment codes digit-only without preventing hexadecimal recovery codes', () => {
+  const view = render(<MfaForm pending={pending} />);
+  fireEvent.change(screen.getByLabelText('Authentication code'), { target: { value: 'a1b2c3!4567' } });
+  expect(screen.getByLabelText('Authentication code').value).toBe('123456');
+  view.unmount();
+  render(<MfaForm pending={{ mfaSetupRequired: false, challenge: 'test' }} />);
+  fireEvent.change(screen.getByLabelText('Authentication code'), { target: { value: 'abcdef012345abcdef012345' } });
+  expect(screen.getByLabelText('Authentication code').value).toBe('abcdef012345abcdef012345');
+});
 it("encodes the enrollment key and server TOTP settings, then verifies the scanned code", async () => {
   api.post.mockResolvedValue({ data: { recoveryCodes: ["recovery-example"] } });
   render(<MfaForm pending={pending} onComplete={vi.fn()} onCancel={vi.fn()} />);

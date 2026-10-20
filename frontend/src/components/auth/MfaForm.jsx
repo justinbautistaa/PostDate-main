@@ -50,7 +50,7 @@ export default function MfaForm({ pending, onComplete, onCancel }) {
       <details><summary>Lost your authenticator and recovery codes?</summary>
         <p>Contact the site administrator for an ownership-verified account recovery. Resetting your password does not remove authenticator security. Never send anyone your password or authentication codes.</p>
       </details></>}
-    <label htmlFor="mfa-code">Authentication code</label><input id="mfa-code" autoComplete="one-time-code" autoFocus maxLength={32} value={code} onChange={event => setCode(event.target.value)} required />
+    <label htmlFor="mfa-code">Authentication code</label><input id="mfa-code" type="text" inputMode={pending.mfaSetupRequired ? 'numeric' : 'text'} pattern={pending.mfaSetupRequired ? '[0-9]{6}' : '(?:[0-9]{6}|[a-fA-F0-9]{24})'} autoComplete="one-time-code" autoFocus maxLength={pending.mfaSetupRequired ? 6 : 24} value={code} onChange={event => setCode(event.target.value.replace(pending.mfaSetupRequired ? /\D/g : /[^a-f\d]/gi, '').slice(0, pending.mfaSetupRequired ? 6 : 24))} required />
     {error && <p role="alert">{error}</p>}
     <div className="mfa-actions"><button type="button" disabled={busy} onClick={onCancel}>Cancel</button><button className="public-primary" disabled={busy}>{busy ? "Verifying…" : "Verify"}</button></div>
   </form>;

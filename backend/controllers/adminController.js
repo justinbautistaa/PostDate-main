@@ -170,7 +170,7 @@ async function getOverview(req, res) {
 
 /** GET /api/admin/statistics?days=7|14|30|90 */
 async function getStatistics(req, res) {
-  const requested = parseInt(req.query.days, 10);
+  const requested = typeof req.query.days === 'string' && /^\d+$/.test(req.query.days) ? Number(req.query.days) : NaN;
   const days = stats.RANGE_OPTIONS.includes(requested) ? requested : 30;
   res.json(await stats.getStatistics(days));
 }

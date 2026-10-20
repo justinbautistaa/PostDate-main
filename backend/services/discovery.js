@@ -10,7 +10,7 @@ function birthdayCutoff(years) {
 }
 function numberParam(value, fallback) {
   if (value === undefined) return fallback;
-  if (typeof value !== "string" || !value.trim()) throw bad("Invalid filters");
+  if (typeof value !== "string" || !/^\d+(?:\.\d+)?$/.test(value)) throw bad("Invalid filters");
   const result = Number(value);
   if (!Number.isFinite(result)) throw bad("Invalid filters");
   return result;

@@ -228,7 +228,7 @@ describe("GET /api/admin/users", () => {
     expect(res.body.rows).toHaveLength(0); // ".*" must not match everyone
   });
 
-  test("paginates and clamps absurd page sizes", async () => {
+  test("paginates valid sizes and rejects absurd page sizes", async () => {
     const mod = await makeUser({ role: "moderator" });
     for (let i = 0; i < 5; i += 1) await makeUser();
     const res = await request(app).get("/api/admin/users?limit=2&page=2").set(as(mod));
@@ -236,7 +236,7 @@ describe("GET /api/admin/users", () => {
     expect(res.body.total).toBe(5);
     expect(res.body.pages).toBe(3);
     const huge = await request(app).get("/api/admin/users?limit=99999").set(as(mod));
-    expect(huge.body.limit).toBeLessThanOrEqual(50);
+    expect(huge.status).toBe(400);
   });
 
   test("each row says what the viewer may do to it", async () => {

@@ -16,6 +16,14 @@ describe("Request security", () => {
   app.post("/change", (req, res) => res.json({ ok: true }));
   app.use(errorHandler);
 
+  test.each(['page=1abc', 'page=1e2', 'page=-1', 'limit=2.5', 'limit=0', 'minAge=17', 'maxAge=121', 'days=7junk', 'maxDistance=0x10', 'page=1&page=2', 'query[x]=text'])('rejects malformed or out-of-range query input: %s', async query => {
+    await request(app).post('/change?' + query).set('X-Postdate-Request','1').send({}).expect(400);
+  });
+  test('accepts bounded whole numbers and decimal distance, rejects non-object bodies', async () => {
+    await request(app).post('/change?page=1&limit=20&minAge=18&maxAge=120&maxDistance=2.5').set('X-Postdate-Request','1').send({}).expect(200);
+    await request(app).post('/change').set('X-Postdate-Request','1').send([]).expect(400);
+  });
+
   test("blocks a form submission without a CSRF header", async () => {
     await request(app).post("/change").send({}).expect(403);
   });

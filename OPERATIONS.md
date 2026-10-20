@@ -1,5 +1,9 @@
 # Account recovery and operations
 
+## Input validation
+
+The API rejects duplicate/nested query values and non-object request bodies. Pagination, ages and reporting-window parameters must use decimal whole-number text within bounds; letters, signs, fractional values and exponent/hex notation are rejected. Distance accepts a bounded nonnegative decimal. Ratings require numeric integers from 1 to 5, coordinates require finite numbers within latitude/longitude bounds, birthdates require real calendar dates and adult eligibility, and email fields use email syntax and length checks. Text fields retain their field-specific limits and allowed selections. Verification codes stay strings so leading zeros are preserved. MFA enrollment accepts six digits; recovery codes retain their hexadecimal letters. Browser restrictions supplement server checks; they are not the security boundary. These checks validate supported formats, not the truth of user-supplied names, locations or content.
+
 ## Incorrect-password throttling
 
 Login allows at most five incorrect email/password attempts per normalized email in a 15-minute window. Later requests return HTTP 429 with `Retry-After` and a retry duration displayed by the login form. The remaining window can be shorter than fifteen minutes. Known and unknown emails use the same budget and responses. MongoDB stores only a keyed digest and counters; atomic reservations prevent parallel requests from bypassing the limit. Correct password checks release their reservation before continuing to MFA or account-status checks. They do not erase earlier failures in the same window. Existing shared login/appeal and per-IP limits continue to apply. No permanent account suspension or MFA change occurs.
