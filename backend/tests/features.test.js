@@ -4,7 +4,9 @@ const sharp = require('sharp');
 const fs = require('fs/promises');
 const path = require('path');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-jest.mock('../utils/verification', () => ({ ...jest.requireActual('../utils/verification'), emailCode: jest.fn().mockResolvedValue() }));
+// This suite tests application flows with a fake mail sender. Mock its
+// readiness too, so clean CI runs do not depend on a developer's private .env.
+jest.mock('../utils/verification', () => ({ ...jest.requireActual('../utils/verification'), emailConfigured: jest.fn(() => true), emailCode: jest.fn().mockResolvedValue() }));
 process.env.JWT_SECRET = 'test-only-secret-long-enough-for-signing';
 const { emailCode } = require('../utils/verification');
 const app = require('../server').createApp();
