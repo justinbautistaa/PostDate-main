@@ -20,3 +20,11 @@ The affected discovery photo returned 404. A scoped live diagnostic confirmed a 
 Using the owner's signed-in staff session on the Render site, the staff overview, user list, pending reports, appeals, ratings, member follow-ups and community notices all loaded. The user list masked emails. The account's Settings page reported authenticator MFA enabled. Browser warning/error inspection returned no entries at check time. Visiting the admin-only page redirected the staff session to the public home page; returning to /staff succeeded. No moderation action, privacy setting, profile field, password or authenticator was changed.
 
 This checks rendered pages and the resulting role redirect, not an adversarial test of every staff API. The MFA challenge was completed by the owner before inspection and was not directly observed or replay-tested. Public signup/email verification and mutual discovery matching still require a separate controlled acceptance run.
+
+## Controlled acceptance follow-up — October 20, 2026
+
+Public signup and email verification passed using an owner-approved disposable Gmail alias. The unverified account could not log in, an unissued code was rejected, the delivered code verified the account once, reuse was rejected and password login/session/logout then passed. The test account and profile were removed. The connected inbox deliberately withheld the code; the owner supplied it for this test, and it was not recorded in this report.
+
+Two disposable members performed reciprocal likes through the live discovery API. Exactly one match was created, including a repeated like. Messaging, report isolation, generated photo upload/avatar/delete, blocking and logout checks also passed. Profiles were discoverable only for the matching calls, then hidden. Their tracked accounts, match, messages, reports, swipes and generated images were removed afterward.
+
+The deployed login page was tested with six incorrect submissions for a nonexistent test email. The browser displayed the cooldown and retry duration. Screenshot proof is stored only in ignored backend/.cache/login-cooldown-proof.png. No real user's password, authenticator or moderation state was changed. These are bounded acceptance checks, not a penetration-test certification or proof that every system path is defect-free.
