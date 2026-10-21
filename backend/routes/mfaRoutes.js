@@ -10,8 +10,9 @@ const secretFields = "+passwordHash +sessionVersion +mfaSecret +mfaLastCounter +
 const bad = res => res.status(401).json({ message: "Invalid or expired authentication code. Try a new code or a recovery code." });
 const badSettingsFactor = res => res.status(403).json({ message: "Password or authentication code is incorrect. Wait for a fresh code, or use an unused recovery code." });
 router.get("/auth/mfa/status", requireAuth, asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.userId).select("mfaEnabled role");
-  res.json({ enabled: user.mfaEnabled, required: mfa.staffRequired(user.role) });
+  const user = await User.findById(req.user.userId).select("mfaEnabled role +mfaEnrollmentDeferred");
+  const recommended = ["admin", "moderator"].includes(user.role) && !user.mfaEnabled && user.mfaEnrollmentDeferred === true;
+  res.json({ enabled: user.mfaEnabled, required: user.mfaEnabled ? mfa.staffRequired(user.role) : mfa.staffRequired(user.role, user.mfaEnrollmentDeferred), recommended });
 }));
 router.post("/auth/mfa/enroll", authLimiter, requireAuth, asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.userId).select(secretFields);
@@ -40,7 +41,7 @@ router.post("/auth/mfa/verify", authLimiter, asyncHandler(async (req, res) => {
     const counter = mfa.counter(mfa.decrypt(pending.secret), code);
     if (counter === null) return bad(res);
     recoveryCodes = Array.from({ length: 8 }, () => crypto.randomBytes(12).toString("hex"));
-    user = await User.findOneAndUpdate({ _id: user._id, sessionVersion: pending.version, mfaEnabled: { $ne: true } }, { $set: { mfaEnabled: true, mfaSecret: pending.secret, mfaLastCounter: counter, mfaRecoveryHashes: recoveryCodes.map(mfa.hash) }, $inc: { sessionVersion: 1 } }, { new: true }).select("+sessionVersion");
+    user = await User.findOneAndUpdate({ _id: user._id, sessionVersion: pending.version, mfaEnabled: { $ne: true } }, { $set: { mfaEnabled: true, mfaEnrollmentDeferred: false, mfaSecret: pending.secret, mfaLastCounter: counter, mfaRecoveryHashes: recoveryCodes.map(mfa.hash) }, $inc: { sessionVersion: 1 } }, { new: true }).select("+sessionVersion");
   } else user = await consumeFactor(user, code);
   if (!user) return bad(res);
   const consumed = await Challenge.findOneAndDelete({ _id: pending._id });

@@ -29,11 +29,11 @@ async function requireAuth(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ["HS256"], issuer: "postdate", audience: "postdate-web",
     });
-    const user = await User.findById(payload.userId).select("_id role isActive isVerified emailVerifiedAt sessionVersion lastActiveAt mfaEnabled deletionRequestedAt");
+    const user = await User.findById(payload.userId).select("_id role isActive isVerified emailVerifiedAt sessionVersion lastActiveAt mfaEnabled deletionRequestedAt +mfaEnrollmentDeferred");
     if (!user || user.deletionRequestedAt || !user.isActive || !user.isVerified || (user.role === "user" && !user.emailVerifiedAt) || payload.version !== (user.sessionVersion || 0)) {
       return res.status(401).json({ message: "Authentication required" });
     }
-    if ((user.mfaEnabled || require("../utils/mfa").staffRequired(user.role)) && !payload.mfaVerified) return res.status(401).json({ message: "Multi-factor login required" });
+    if ((user.mfaEnabled || require("../utils/mfa").staffRequired(user.role, user.mfaEnrollmentDeferred)) && !payload.mfaVerified) return res.status(401).json({ message: "Multi-factor login required" });
 
     const now = Date.now();
     if (!user.lastActiveAt || now - user.lastActiveAt.getTime() > ACTIVE_TOUCH_MS) {

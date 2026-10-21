@@ -2,6 +2,12 @@
 
 Prepared October 21, 2026. These procedures do not reset an account or overwrite production by themselves. Record the responsible operator, decision, date and outcome in a private operations log.
 
+## Explicit owner-authorized reset on Render
+
+For a specifically authorized account reset, the operator can merge three service-only settings: `ACCOUNT_MFA_RECOVERY_EMAIL`, a fresh random 32-byte hexadecimal `ACCOUNT_MFA_RECOVERY_REQUEST_ID`, and `ACCOUNT_MFA_RECOVERY_OWNER_AUTHORIZED=true`. Do not commit their values. This startup action accepts an active, verified member/admin/staff account, preserves its password and role, removes its authenticator and recovery codes, revokes sessions and push registrations, and records an audit entry. Staff enrollment is deferred with the same workspace recommendation used after promotion. It does not change other accounts or create an HTTP reset endpoint.
+
+Deploy the tested code, inspect the `[account-mfa-recovery] recovered` result, then clear all three settings to empty strings. Do not report success if the log says refused or failed. Reusing the same request cannot remove a replacement factor; each new reset requires fresh owner authorization and a new request ID. This owner-requested deferral is distinct from the staff recovery procedure below, which enforces replacement enrollment.
+
 ## Lost authenticator
 
 1. Ask the owner to use an unused recovery code first. Password recovery preserves MFA.

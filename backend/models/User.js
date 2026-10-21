@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema(
     connectionNoticesReadAt: { type: Date, default: null, select: false },
     deletionRequestedAt: { type: Date, default: null, select: false },
     mfaEnabled: { type: Boolean, default: false },
+    // Only the admin promotion endpoint grants deferred first-time enrollment.
+    mfaEnrollmentDeferred: { type: Boolean, default: false, select: false },
     mfaSecret: { type: String, select: false },
     mfaLastCounter: { type: Number, default: -1, select: false },
     mfaRecoveryHashes: { type: [String], select: false },

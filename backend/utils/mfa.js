@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const OTPAuth = require("otpauth");
 const Challenge = require("../models/MfaChallenge");
 const hash = value => crypto.createHash("sha256").update(value).digest("hex");
-const staffRequired = role => process.env.NODE_ENV === "production" && ["admin", "moderator"].includes(role);
+const staffRequired = (role, enrollmentDeferred = false) => process.env.NODE_ENV === "production" && ["admin", "moderator"].includes(role) && !enrollmentDeferred;
 function key() {
   if (!/^[a-f\d]{64}$/i.test(process.env.MFA_ENCRYPTION_KEY || "")) throw new Error("MFA is not configured");
   return Buffer.from(process.env.MFA_ENCRYPTION_KEY, "hex");

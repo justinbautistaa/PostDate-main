@@ -1,0 +1,11 @@
+.staff-mfa-reminder {
+  margin-bottom: 24px;
+  padding: 18px 22px;
+  border: 1px solid #cfae98;
+  border-left: 4px solid #84364d;
+  border-radius: 12px;
+  background: #fff5e6;
+  color: #583b35;
+}
+.staff-mfa-reminder p { margin: 6px 0 12px; line-height: 1.6; }
+.staff-mfa-reminder section { margin-top: 18px; }

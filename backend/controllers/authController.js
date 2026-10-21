@@ -192,7 +192,7 @@ async function login(req, res) {
       res.set('Retry-After', String(attempt.retryAfter));
       return res.status(429).json({ message: 'Too many incorrect login attempts. Please try again in ' + Math.ceil(attempt.retryAfter / 60) + ' minute(s).', retryAfter: attempt.retryAfter });
     }
-    const user = await User.findOne({ email: email.trim().toLowerCase() }).select("+passwordHash +sessionVersion +deletionRequestedAt");
+    const user = await User.findOne({ email: email.trim().toLowerCase() }).select("+passwordHash +sessionVersion +deletionRequestedAt +mfaEnrollmentDeferred");
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       attempt = null; // Keep this reservation as a failed credential attempt.
       return res.status(401).json({ message: "Wrong email or password" });
@@ -206,7 +206,7 @@ async function login(req, res) {
       return res.status(403).json({ message: "Verify your email before logging in" });
     }
 
-    if (user.mfaEnabled || require("../utils/mfa").staffRequired(user.role)) {
+    if (user.mfaEnabled || require("../utils/mfa").staffRequired(user.role, user.mfaEnrollmentDeferred)) {
       try { return res.json(await require("../utils/mfa").begin(user, !user.mfaEnabled)); }
       catch { return res.status(503).json({ message: "Multi-factor authentication is unavailable. Contact the site administrator." }); }
     }
