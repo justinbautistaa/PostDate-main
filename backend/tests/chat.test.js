@@ -41,6 +41,12 @@ test("push subscriptions are validated, private, revoked at logout, and send gen
     expect(validEndpoint("https://fcm.googleapis.com.evil.test/x")).toBe(false);
     await call("post", "/push/subscribe").send({ ...sub, endpoint: "http://localhost/private" }).expect(400);
     await call("post", "/push/subscribe").send(sub).expect(204);
+    expect((await call("post", "/push/status").send({ endpoint: sub.endpoint }).expect(200)).body).toEqual({ enabled: true });
+    expect((await call("post", "/push/status", bob).send({ endpoint: sub.endpoint }).expect(200)).body).toEqual({ enabled: false });
+    await require("../models/PushSubscription").updateOne({ endpoint: sub.endpoint }, { sessionVersion: 9 });
+    expect((await call("post", "/push/status").send({ endpoint: sub.endpoint }).expect(200)).body).toEqual({ enabled: false });
+    await call("post", "/push/subscribe").send(sub).expect(204);
+    await call("post", "/push/status").send({ endpoint: "https://127.0.0.1/private" }).expect(400);
     await call("post", "/push/subscribe", bob).send(sub).expect(409);
     await sendPush(alice.id, { title: "You have a new PostDate message", url: `/messages?match=${match.id}` });
     expect(JSON.parse(delivery.mock.calls[0][1])).toEqual({ title: "You have a new PostDate message", body: "Open PostDate to view your update.", url: `/messages?match=${match.id}` });
