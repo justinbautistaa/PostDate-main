@@ -26,9 +26,9 @@
  *    (`calc(<Figma px> * var(--u))`); --u lives in src/theme.css.
  */
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { setSession } from "../auth";
+import { setSession, isAuthenticated, getRole } from "../auth";
 import VerificationModal from "../components/VerificationModal";
 import SiteNav from "../components/SiteNav";
 import SiteFooter from "../components/SiteFooter";
@@ -84,6 +84,9 @@ function Login() {
     setNotice("");
   }, [key]);
 
+  // History navigation and direct visits must not show login to a signed-in user.
+  if (isAuthenticated()) return <Navigate to={HOME_BY_ROLE[getRole()] || "/dashboard"} replace />;
+
   return (
     <div className="login public-page">
       <style>{`
@@ -106,7 +109,7 @@ function Login() {
       <main className="login-main">
         <aside className="login-welcome"><p className="public-eyebrow">YOUR NEXT CHAPTER STARTS HERE</p><h2>A familiar face.<br />A new possibility.</h2><p>Pick up where you left off. Your next good conversation could be waiting.</p><div className="login-letter" aria-hidden="true"><span>A NOTE FOR YOU</span><strong>Good things<br />start with<br />a hello.</strong><i>♡</i><small>POSTDATE! / STAY CURIOUS</small></div><span className="login-welcome-foot">A little curiosity. A real connection.</span></aside>
         <AuthPanel title={TITLES[view]}>
-          {mfa && <MfaForm pending={mfa} onCancel={() => setMfa(null)} onComplete={session => { setSession({ userId: session.userId, role: session.role }); navigate(HOME_BY_ROLE[session.role] || "/dashboard"); }} />}
+          {mfa && <MfaForm pending={mfa} onCancel={() => setMfa(null)} onComplete={session => { setSession({ userId: session.userId, role: session.role }); navigate(HOME_BY_ROLE[session.role] || "/dashboard", { replace: true }); }} />}
           {view === "login" && !mfa && (
             <LoginForm
               defaultEmail={email}
@@ -116,7 +119,7 @@ function Login() {
                   const session = await loginUser({ email, password });
                   if (session.mfaRequired) { setMfa(session); return; }
                   setSession(session);
-                  navigate(HOME_BY_ROLE[session?.role] ?? "/discover");
+                  navigate(HOME_BY_ROLE[session?.role] ?? "/dashboard", { replace: true });
                 } catch (err) {
                   if (err?.response?.status === 403 && err.response.data.message === "Verify your email before logging in") {
                     setVerifyEmail(email);
