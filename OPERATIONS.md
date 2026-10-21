@@ -1,5 +1,7 @@
 # Account recovery and operations
 
+RECOVERY_RUNBOOK.md defines independent ownership verification, key custody and photo recovery. PRIVATE_BACKUP_SETUP.md covers the prepared runner outside the web service.
+
 ## Input validation
 
 The API rejects duplicate/nested query values and non-object request bodies. Pagination, ages and reporting-window parameters must use decimal whole-number text within bounds; letters, signs, fractional values and exponent/hex notation are rejected. Distance accepts a bounded nonnegative decimal. Ratings require numeric integers from 1 to 5, coordinates require finite numbers within latitude/longitude bounds, birthdates require real calendar dates and adult eligibility, and email fields use email syntax and length checks. Text fields retain their field-specific limits and allowed selections. Verification codes stay strings so leading zeros are preserved. MFA enrollment accepts six digits; recovery codes retain their hexadecimal letters. Browser restrictions supplement server checks; they are not the security boundary. These checks validate supported formats, not the truth of user-supplied names, locations or content.
@@ -42,6 +44,6 @@ The scheduled Codex check also reads the latest Render deployment and passes its
 
 ## Backup verification
 
-The regression suite encrypts the entire sample dataset, restores it into a separate empty test database and compares every collection count. It also verifies preserved IDs/dates and unique indexes and rejects altered/wrong-key backups. This is a local recovery drill, not evidence of a production off-host backup.
+The regression suite encrypts a sample dataset and verifies restoration, IDs/dates, indexes and tamper rejection. Separately, SECURITY_ACCEPTANCE_2026-10-20.md records a successful off-host production database/media archive and isolated restore. Unattended coverage still depends on the configured runner.
 
 Use `backend/scripts/backupDatabase.js` with a separate `BACKUP_ENCRYPTION_KEY` to create an encrypted production backup. Store the backup off-host and the key separately. Restore only into an empty database whose name contains `restore_test`, using `backend/scripts/restoreBackup.js` and `POSTDATE_RESTORE_TEST_URI`. Do not overwrite production as a test. Production backup access and the off-host destination must be configured and tested separately.

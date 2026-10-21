@@ -1,6 +1,6 @@
 # Put PostDate online
 
-The application is prepared locally. A live deployment has not been created. These steps use the existing Render template and keep the site and API together.
+The existing site is https://postdate.onrender.com, deployed from `justinbautistaa/PostDate-main` on branch `main`. Use DEPLOYMENT.md for that service. The steps below describe a new installation; do not create a duplicate service when updating the current site.
 
 ## 1. Put the source on GitHub
 
@@ -10,7 +10,7 @@ Create a private GitHub repository and push this project using GitHub Desktop or
 
 - MongoDB Atlas: create a database and an application database user. Copy its connection URI into Render as `MONGO_URI`, with the database name included. Restrict database access to your host and use the application credential, not an administrator account.
 - Cloudinary: get your cloud name, API key, and API secret. Add the three `CLOUDINARY_...` settings listed in the template privately on Render. Existing local profile photos need migration; switching storage does not copy them automatically.
-- Email: the Render template uses Resend's HTTPS API. Configure a verified sender, then add `MAIL_API_KEY` and `MAIL_FROM`. The local Gmail settings can continue to be used locally. Hosted SMTP availability depends on the hosting plan; Render free web services block outbound SMTP ports.
+- Email: the current template uses Gmail API HTTPS delivery (`MAIL_MODE=gmail-api`). Configure `GMAIL_USER`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and `GOOGLE_REFRESH_TOKEN` privately; see backend/GMAIL_API_SETUP.md. Optional Resend delivery requires its own sender configuration.
 
 ## 3. Create the Render service
 
@@ -37,3 +37,5 @@ With two ordinary user accounts in separate browsers, verify real signup email, 
 Check `/healthz`, HTTPS cookies, actual proxy/rate-limit behavior, persistent photos, provider errors and logs. Schedule encrypted database backups to a separate location and perform a restoration drill into an empty test database. Test keys and mocked automated tests do not verify production accounts or backup recovery.
 
 See DEPLOYMENT.md for detailed configuration and backup commands. Hosting credentials should be entered directly in the host dashboard, not pasted into chat.
+
+The October 20 acceptance record confirms bounded live tests and an off-host production archive/restore. See SECURITY_ACCEPTANCE_2026-10-20.md. RECOVERY_RUNBOOK.md covers recovery decisions; PRIVATE_BACKUP_SETUP.md describes the prepared independent runner and its activation requirements.

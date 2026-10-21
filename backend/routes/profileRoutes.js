@@ -9,6 +9,7 @@ const {
 } = require("../controllers/profileController");
 const { requireAuth } = require("../middleware/auth");
 const { upload, MAX_FILES } = require("../middleware/upload");
+const { withUploadCapacity } = require("../middleware/uploadCapacity");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 const router = express.Router();
@@ -33,8 +34,7 @@ router.put("/profile/looking-for", requireAuth, asyncHandler(saveLookingFor));
 router.post(
   "/profile/photos",
   requireAuth,
-  upload.array("photos", MAX_FILES),
-  asyncHandler(uploadPhotos)
+  withUploadCapacity(upload.array("photos", MAX_FILES), uploadPhotos)
 );
 router.delete("/profile/photos/:filename", requireAuth, asyncHandler(deletePhoto));
 router.put("/profile/avatar", requireAuth, asyncHandler(setAvatar));
