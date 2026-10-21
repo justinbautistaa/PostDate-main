@@ -49,6 +49,7 @@ function createApp() {
   app.use("/api", require("./routes/memberRoutes"));
   app.use("/api", require("./routes/chatRoutes"));
   app.use("/api", require("./routes/workspaceRoutes"));
+  app.use("/api/photos", require("./routes/databasePhotoRoutes"));
   app.use("/api", notFound);
   app.use(require("./routes/photoRoutes"));
   if (process.env.NODE_ENV === "production" || process.env.SERVE_FRONTEND === "true") {
