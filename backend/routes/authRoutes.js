@@ -10,6 +10,7 @@ const {
 const { authLimiter } = require("../middleware/rateLimiter");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { upload, MAX_FILES } = require("../middleware/upload");
+const { withUploadCapacity } = require("../middleware/uploadCapacity");
 
 const { requireAuth } = require("../middleware/auth");
 const { validateRequest } = require("../middleware/security");
@@ -32,7 +33,7 @@ const router = express.Router();
 // rest of the form as multipart/form-data. It's a no-op for a plain JSON
 // request (multer only engages for multipart content types), so this
 // doesn't change anything for a signup sent without photos.
-router.post("/signup", authLimiter, upload.array("photos", MAX_FILES), validateRequest, asyncHandler(register));
+router.post("/signup", authLimiter, withUploadCapacity(upload.array("photos", MAX_FILES), register, validateRequest));
 router.post("/auth/login", authLimiter, accountLimiter("password", 20), asyncHandler(login));
 router.post("/verify/send", authLimiter, accountLimiter("verification-send", 5), asyncHandler(sendVerificationCode));
 router.post("/verify/confirm", authLimiter, accountLimiter("verification-confirm", 20), asyncHandler(verifyCode));

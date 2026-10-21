@@ -1,6 +1,8 @@
 # PostDate
 
-React/Vite frontend with an Express/Mongoose API. Security and service integrations are prepared locally; this repository has not been deployed by this change.
+React/Vite frontend with an Express/Mongoose API. The existing hosted deployment is https://postdate.onrender.com. This local folder has no Git metadata; publishing local edits requires updating the linked repository and deploying the reviewed commit. See DEPLOYMENT.md.
+
+For verified live behavior, see SECURITY_ACCEPTANCE_2026-10-20.md. Later acceptance results supersede gaps in historical reviews. Recovery procedures are in RECOVERY_RUNBOOK.md; optional independent backup activation is in PRIVATE_BACKUP_SETUP.md.
 
 ## Run locally
 
@@ -24,6 +26,10 @@ Use Node 24.15 or later. Install dependencies:
 npm ci --prefix backend
 npm ci --prefix frontend
 ```
+
+On Windows, `powershell -File scripts/verifyLocal.ps1 -Install` installs locked dependencies and runs both suites and the production build. It selects a compatible bundled Node when system Node is too old, without changing the system installation. Omit `-Install` for subsequent checks.
+
+Multipart signup and profile-photo uploads share one in-flight slot per server process. A competing batch receives HTTP 503 with `Retry-After: 5` and a retry message before image buffering. JSON signup, login and normal reads do not use this slot. This reduces simultaneous-upload memory pressure; it does not establish production load capacity or remove hosting limits.
 
 Copy `backend/.env.example` to ignored `backend/.env`, generate a random JWT signing secret, and configure MongoDB and email delivery. For Gmail use `MAIL_MODE=gmail`, `GMAIL_USER`, and `GMAIL_APP_PASSWORD`; for Resend use `MAIL_MODE=resend`, `MAIL_API_KEY`, and `MAIL_FROM`. Start the API with `npm run dev --prefix backend` and the frontend with `npm run dev --prefix frontend`. Never place secrets in frontend variables. Check Gmail/SMTP connectivity without sending a message using `node backend/scripts/check-email.js`.
 

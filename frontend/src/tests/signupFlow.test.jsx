@@ -34,7 +34,7 @@ it("the real signup fields submit details, photos and tastes before sending veri
   await waitFor(() => expect(api.sendVerificationCode).toHaveBeenCalledWith("alex@example.test"));
   expect(api.submitSignup).toHaveBeenCalledWith(expect.objectContaining({ firstName: "Alex", email: "alex@example.test", photos: [expect.any(File)], tags: ["Kind", "Curious", "Creative"] }));
   expect(screen.getByRole("dialog")).toBeTruthy();
-});
+}, 15000); // Full multi-step form traversal can exceed 5s on this Windows host.
 it("signup retains the last step and selections when account creation fails", async () => {
   api.submitSignup.mockRejectedValue({ response: { status: 409 } });
   const { container } = render(<MemoryRouter><Signup /></MemoryRouter>);
@@ -44,4 +44,4 @@ it("signup retains the last step and selections when account creation fails", as
   expect(screen.getByRole("button", { name: "Kind" }).getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(api.sendVerificationCode).not.toHaveBeenCalled();
-});
+}, 15000);

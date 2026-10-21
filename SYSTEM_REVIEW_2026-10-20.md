@@ -1,5 +1,7 @@
 # PostDate review — October 20, 2026
 
+**Historical record:** SECURITY_ACCEPTANCE_2026-10-20.md subsequently confirmed live disposable-account checks and an off-host production database/media archive with an isolated restore. Those results supersede the unverified items below. See FIX_STATUS_2026-10-21.md for follow-up status.
+
 ## Verified issues fixed
 
 1. Photo deletion previously read a gallery and saved a replacement array. Concurrent uploads/deletions could lose each other's changes; selecting a photo as avatar during deletion could leave an avatar referencing a removed image. Deletion now atomically checks membership, avatar exclusion and minimum gallery size, then pulls only the requested path. Avatar changes also require current gallery membership in the same atomic update. Conflicts return 409 without deleting the file.
