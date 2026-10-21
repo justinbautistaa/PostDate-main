@@ -332,7 +332,10 @@ async function setUserRole(req, res) {
   if (target.role === role) return res.json({ ok: true, role });
 
   const previous = target.role;
-  await User.updateOne({ _id: target._id }, { $set: { role } });
+  const update = { role };
+  if (previous === "user" && ["admin", "moderator"].includes(role)) update.mfaEnrollmentDeferred = true;
+  if (role === "user") update.mfaEnrollmentDeferred = false;
+  await User.updateOne({ _id: target._id }, { $set: update });
 
   await audit(req, {
     action: "user.role_change",

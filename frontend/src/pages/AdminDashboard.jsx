@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Wordmark from "../components/Wordmark";
 import MessageNotifications from "../components/MessageNotifications";
+import StaffMfaReminder from "../components/StaffMfaReminder";
 import WorkspaceFeatures from "../components/WorkspaceFeatures";
 import StatisticsSection from "../components/admin/StatisticsSection";
 import UsersSection from "../components/admin/UsersSection";
@@ -98,6 +99,7 @@ export default function AdminDashboard({ role = "admin" }) {
     <div className="workspace-body">
       <header className="workspace-topbar"><span className="dashboard-breadcrumb">Workspace <span aria-hidden="true">/</span> <b>{tools.find(tool => tool.id === section)?.label}</b></span><div><MessageNotifications /><span className="dashboard-live"><i aria-hidden="true" />{overview ? formatNumber(overview.activeCount) : "—"} active now</span><span className="role-pill">{isAdmin ? "Admin" : "Staff"}</span><button className="text-button" disabled={loggingOut} onClick={logOut}>{loggingOut ? "Logging out…" : "Log out ↗"}</button></div></header>
       <main className="workspace-main" id="dashboard-content" ref={contentRef} tabIndex={-1}>
+        <StaffMfaReminder />
         {section === "overview" ? <div className="role-overview">
           <div className="workspace-title"><div><p className="eyebrow">POSTDATE! / {isAdmin ? "BEHIND THE SCENES" : "PEOPLE FIRST"}</p><h1>{isAdmin ? "A little care goes a long way." : "Let’s look after our community."}</h1><p className="muted">{isAdmin ? "Your community, your team, and everything that needs your attention." : "A thoughtful decision can make someone’s experience better."}</p></div></div>
           <section className="workspace-banner"><div><span className="eyebrow">{isAdmin ? "THE BIG PICTURE" : "YOUR SHIFT STARTS HERE"}</span><h2>{isAdmin ? "Room for connection.\nBuilt on trust." : "Real people.\nA safer place to meet."}</h2><p>{isAdmin ? "Keep an eye on the community and give your team the support they need." : "Start with the reports waiting for a review. Take your time, check the context, and keep it fair."}</p><button className="cream-button" onClick={() => setSection("reports")}>Review reports <span aria-hidden="true">↗</span></button></div><div className="postage-art" aria-hidden="true"><span>HANDLE WITH CARE</span><strong>{isAdmin ? "✦" : "♡"}</strong><small>THE POSTDATE COMMUNITY</small></div></section>

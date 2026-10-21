@@ -48,6 +48,8 @@ Password recovery uses real email delivery. For Gmail, set `MAIL_MODE=gmail`, `G
 
 Login opens the workspace for the account's role. All workspaces require a session; admin and staff pages also enforce their respective roles. Counters and profiles come from the API, and existing server permissions continue to control moderation actions.
 
+When an administrator promotes a member to staff or admin, first-time MFA enrollment is deferred. The promoted account can use its workspace and sees a persistent reminder with optional setup. Promotion never removes an existing authenticator: enabled MFA still requires a code. Completing enrollment clears the deferral. Separately provisioned staff and operator MFA recovery retain their existing production enrollment requirement; existing staff accounts are not automatically migrated by this change.
+
 - Signup, real email verification, cookie-based login/logout and email password recovery.
 - Authenticated profile details, tags, preferences and validated photo upload/delete/avatar selection.
 - Filtered member discovery, persistent likes/passes, mutual matches and participant-only match history.

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import ProfilePhoto from "../components/ProfilePhoto";
 import WorkspaceFeatures from "../components/WorkspaceFeatures";
+import StaffMfaReminder from "../components/StaffMfaReminder";
 import { getProfile, toPhotoUrl } from "../services/postdateApi";
 import { getRole } from "../auth";
 import "./Workspace.css";
@@ -24,6 +25,7 @@ export default function UserDashboard() {
   const name = profile?.displayName || profile?.name || "You";
   const role = getRole();
   return <div className="member-home"><AppNav /><main className="member-main">
+    <StaffMfaReminder />
     <div className="workspace-title"><div><p className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</p><h1>{profile ? "Hello, " + name.split(" ")[0] + "." : "Welcome to PostDate."}</h1><p className="muted">A little curiosity. A real connection. Something worth showing up for.</p></div>{role === "admin" || role === "moderator" ? <Link className="outline-button" to={role === "admin" ? "/admin" : "/staff"}>Open {role === "admin" ? "admin" : "staff"} workspace ↗</Link> : <span className="role-pill">Your personal space</span>}</div>
     <section className="workspace-banner member-banner"><div><span className="eyebrow">LESS SCROLLING. MORE SPARK.</span><h2>Good things start<br />with a hello.</h2><p>Find someone who shares your interests, your energy, or your love of a very good coffee.</p><Link className="cream-button" to="/discover">Meet the community ↗</Link></div><div className="postage-art" aria-hidden="true"><span>A NOTE FOR YOU</span><strong>♡</strong><small>OPEN TO POSSIBILITIES</small></div></section>
     <nav className="member-quicklinks" aria-label="Your space shortcuts">{[{ to: "/discover", icon: "✦", title: "Find dates", sub: "Meet someone who feels right" }, { to: "/messages", icon: "♡", title: "Your chats", sub: "Say hello to your matches" }, { to: "/profile", icon: "▧", title: "Your profile", sub: "Tell your story" }].map(link => <Link key={link.title} to={link.to} className="member-quicklink"><span aria-hidden="true">{link.icon}</span><span><b>{link.title}</b><small>{link.sub}</small></span><span aria-hidden="true">↗</span></Link>)}</nav>

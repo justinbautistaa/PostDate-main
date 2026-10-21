@@ -15,7 +15,7 @@ async function recoverStaffMfa(env = process.env) {
   const requestHash = crypto.createHash("sha256").update(requestId).digest("hex");
   const target = { email, role: { $in: ["admin", "moderator"] }, isActive: true, isVerified: true, deletionRequestedAt: null };
   const user = await User.findOneAndUpdate({ ...target, mfaRecoveryRequestHash: { $ne: requestHash } }, {
-    $set: { mfaEnabled: false, mfaLastCounter: -1, mfaRecoveryRequestHash: requestHash, mfaRecoveredAt: new Date() },
+    $set: { mfaEnabled: false, mfaEnrollmentDeferred: false, mfaLastCounter: -1, mfaRecoveryRequestHash: requestHash, mfaRecoveredAt: new Date() },
     $inc: { sessionVersion: 1 },
     $unset: { mfaSecret: 1, mfaRecoveryHashes: 1, recoveryHash: 1, recoveryExpiresAt: 1, recoverySentAt: 1, recoveryAttempts: 1, resetTokenHash: 1, resetExpiresAt: 1 },
   }, { new: true });

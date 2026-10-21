@@ -5,6 +5,12 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     const recovery = await require("../utils/staffMfaRecovery").recoverStaffMfa();
     if (recovery !== "disabled") console.log(`[mfa-recovery] ${recovery}; fresh staff enrollment remains required`);
+    try {
+      const accountRecovery = await require("../utils/accountMfaRecovery").recoverAccountMfa();
+      if (accountRecovery !== "disabled") console.log(`[account-mfa-recovery] ${accountRecovery}; password and role preserved`);
+    } catch {
+      console.error("[account-mfa-recovery] refused or failed; operator review required");
+    }
     console.log("Database connected");
   } catch (error) {
     throw new Error("Database connection failed");
