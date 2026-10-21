@@ -5,6 +5,13 @@ const Subscription = require("../models/PushSubscription");
 const { configured, validEndpoint } = require("../utils/push");
 router.use("/push", requireAuth);
 router.get("/push/config", (req, res) => res.json({ enabled: configured(), publicKey: configured() ? process.env.VAPID_PUBLIC_KEY : null }));
+router.post("/push/status", asyncHandler(async (req, res) => {
+  const endpoint = req.body?.endpoint;
+  if (typeof endpoint !== "string" || !validEndpoint(endpoint)) return res.status(400).json({ message: "Invalid subscription" });
+  const user = await require("../models/User").findById(req.user.userId).select("+sessionVersion").lean();
+  const active = configured() && Boolean(await Subscription.exists({ endpoint, userId: req.user.userId, sessionVersion: user.sessionVersion || 0 }));
+  res.json({ enabled: active });
+}));
 router.post("/push/subscribe", asyncHandler(async (req, res) => {
   if (!configured()) return res.status(503).json({ message: "Browser notifications are not configured on this server yet." });
   const { endpoint, keys } = req.body || {};
