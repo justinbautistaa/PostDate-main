@@ -6,9 +6,11 @@ import Login from "../pages/Login";
 import RecoveryForm from "../components/auth/RecoveryForm";
 import NewPasswordForm from "../components/auth/NewPasswordForm";
 import * as api from "../services/postdateApi";
+import { clearToken } from "../auth";
 vi.mock("../services/postdateApi", () => ({ loginUser: vi.fn(), requestRecoveryCode: vi.fn(), verifyRecoveryCode: vi.fn(), resetPassword: vi.fn() }));
 vi.mock("../components/VerificationModal", () => ({ default: () => null }));
 beforeEach(() => {
+  clearToken();
   vi.resetAllMocks();
   api.requestRecoveryCode.mockResolvedValue({ expiresInSeconds: 300, resendAfterSeconds: 60 });
   api.verifyRecoveryCode.mockResolvedValue({ resetToken: "reset-proof" });
