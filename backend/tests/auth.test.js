@@ -350,7 +350,7 @@ test("concurrent uploads cannot exceed the account photo quota", async () => {
     if (denied.status === 503) expect(denied.headers['retry-after']).toBe('5');
     expect((await Profile.findOne({ userId: user._id })).photos).toHaveLength(30);
     await request(app).post('/api/profile/photos').set('Cookie', cookie)
-      .attach('photos', png, { filename: 'retry.png', contentType: 'image/png' }).expect(409);
+      .attach('photos', png, { filename: 'retry.png', contentType: 'image/png' }).expect(400);
   } finally {
     const profile = await Profile.findOne({ userId: user._id });
     await Promise.all(profile.photos.filter((photo) => !fixtures.includes(photo)).map(require("../utils/photoStorage").deletePhotoFile));
